@@ -1,0 +1,402 @@
+{
+    "address": "EGMzXToSqdq8PfSDergoQNEphopAF4EVsBzSapKU9JLi",
+    "metadata": {
+      "name": "solana_button",
+      "version": "0.1.0",
+      "spec": "0.1.0",
+      "description": "Created with Anchor"
+    },
+    "instructions": [
+      {
+        "name": "claim_reward",
+        "discriminator": [
+          149,
+          95,
+          181,
+          242,
+          94,
+          90,
+          158,
+          162
+        ],
+        "accounts": [
+          {
+            "name": "game_state",
+            "writable": true
+          },
+          {
+            "name": "vault",
+            "writable": true
+          },
+          {
+            "name": "user",
+            "writable": true,
+            "signer": true
+          },
+          {
+            "name": "system_program",
+            "address": "11111111111111111111111111111111"
+          }
+        ],
+        "args": []
+      },
+      {
+        "name": "click_button",
+        "discriminator": [
+          50,
+          74,
+          85,
+          148,
+          119,
+          56,
+          246,
+          125
+        ],
+        "accounts": [
+          {
+            "name": "global_state",
+            "writable": true
+          },
+          {
+            "name": "game_state",
+            "writable": true
+          },
+          {
+            "name": "vault",
+            "writable": true
+          },
+          {
+            "name": "user",
+            "writable": true,
+            "signer": true
+          },
+          {
+            "name": "system_program",
+            "address": "11111111111111111111111111111111"
+          }
+        ],
+        "args": [
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      },
+      {
+        "name": "create_new_game",
+        "discriminator": [
+          125,
+          123,
+          146,
+          199,
+          15,
+          252,
+          11,
+          68
+        ],
+        "accounts": [
+          {
+            "name": "global_state",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    103,
+                    108,
+                    111,
+                    98,
+                    97,
+                    108
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "name": "game_state",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    103,
+                    97,
+                    109,
+                    101
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "global_state.next_game_id",
+                  "account": "GlobalState"
+                }
+              ]
+            }
+          },
+          {
+            "name": "vault",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    118,
+                    97,
+                    117,
+                    108,
+                    116
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "global_state.next_game_id",
+                  "account": "GlobalState"
+                }
+              ]
+            }
+          },
+          {
+            "name": "user",
+            "writable": true,
+            "signer": true
+          },
+          {
+            "name": "system_program",
+            "address": "11111111111111111111111111111111"
+          }
+        ],
+        "args": [
+          {
+            "name": "deposit_amount",
+            "type": "u64"
+          },
+          {
+            "name": "game_time_sec",
+            "type": "i64"
+          }
+        ]
+      },
+      {
+        "name": "initialize_global_state",
+        "discriminator": [
+          232,
+          254,
+          209,
+          244,
+          123,
+          89,
+          154,
+          207
+        ],
+        "accounts": [
+          {
+            "name": "global_state",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    103,
+                    108,
+                    111,
+                    98,
+                    97,
+                    108
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "name": "authority",
+            "writable": true,
+            "signer": true
+          },
+          {
+            "name": "system_program",
+            "address": "11111111111111111111111111111111"
+          }
+        ],
+        "args": []
+      },
+      {
+        "name": "verify_game_state",
+        "discriminator": [
+          246,
+          86,
+          135,
+          195,
+          12,
+          39,
+          128,
+          55
+        ],
+        "accounts": [
+          {
+            "name": "game_state",
+            "writable": true
+          },
+          {
+            "name": "global_state",
+            "writable": true
+          }
+        ],
+        "args": []
+      }
+    ],
+    "accounts": [
+      {
+        "name": "GameState",
+        "discriminator": [
+          144,
+          94,
+          208,
+          172,
+          248,
+          99,
+          134,
+          120
+        ]
+      },
+      {
+        "name": "GlobalState",
+        "discriminator": [
+          163,
+          46,
+          74,
+          168,
+          216,
+          123,
+          133,
+          98
+        ]
+      },
+      {
+        "name": "Vault",
+        "discriminator": [
+          211,
+          8,
+          232,
+          43,
+          2,
+          152,
+          117,
+          119
+        ]
+      }
+    ],
+    "errors": [
+      {
+        "code": 6000,
+        "name": "IncorrectDepositAmount",
+        "msg": "Incorrect deposit amount"
+      },
+      {
+        "code": 6001,
+        "name": "InsufficientFunds",
+        "msg": "Insufficient funds in user account"
+      },
+      {
+        "code": 6002,
+        "name": "GameNotActive",
+        "msg": "Game not active"
+      },
+      {
+        "code": 6003,
+        "name": "AlreadyLastClicker",
+        "msg": "Already the last clicker"
+      },
+      {
+        "code": 6004,
+        "name": "GameEnded",
+        "msg": "Game has ended"
+      }
+    ],
+    "types": [
+      {
+        "name": "GameState",
+        "type": {
+          "kind": "struct",
+          "fields": [
+            {
+              "name": "last_clicker",
+              "type": "pubkey"
+            },
+            {
+              "name": "game_id",
+              "type": "u64"
+            },
+            {
+              "name": "click_number",
+              "type": "u64"
+            },
+            {
+              "name": "is_active",
+              "type": "bool"
+            },
+            {
+              "name": "has_ended",
+              "type": "bool"
+            },
+            {
+              "name": "last_click_timestamp",
+              "type": {
+                "option": "i64"
+              }
+            },
+            {
+              "name": "game_time_sec",
+              "type": "i64"
+            }
+          ]
+        }
+      },
+      {
+        "name": "GlobalState",
+        "type": {
+          "kind": "struct",
+          "fields": [
+            {
+              "name": "authority",
+              "type": "pubkey"
+            },
+            {
+              "name": "next_game_id",
+              "type": "u64"
+            },
+            {
+              "name": "active_game_id",
+              "type": {
+                "option": "u64"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "Vault",
+        "type": {
+          "kind": "struct",
+          "fields": [
+            {
+              "name": "game_id",
+              "type": "u64"
+            },
+            {
+              "name": "balance",
+              "type": "u64"
+            },
+            {
+              "name": "deposit_amount",
+              "type": "u64"
+            }
+          ]
+        }
+      }
+    ]
+  }
