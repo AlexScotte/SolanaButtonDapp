@@ -4,6 +4,7 @@ import idl from './idl.json';
 export const SOLANA_BUTTON_PROGRAM_ID = new anchor.web3.PublicKey(idl.address);
 
 export function getSolanaButtonProgram(provider: anchor.AnchorProvider): anchor.Program<ProgramType> {
+  
   return new anchor.Program<ProgramType>(idl as ProgramType, provider);
 };
 

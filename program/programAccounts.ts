@@ -30,6 +30,7 @@ export async function getGlobalStatePDA(program : anchor.Program<ProgramType>)
         return globalStatePda;
     }
     catch(err){
+        console.log("Error when getting global state PDA: ", err);
         throw err;
     }
 }
@@ -58,6 +59,7 @@ export async function getGameStatePDA(program : anchor.Program<ProgramType>, gam
         return gameStatePda;
     }
     catch(err){
+        console.log("Error when getting game state PDA: ", err);
         throw err;
     }
 }
@@ -86,6 +88,7 @@ export async function getGameVaultStatePDA(program : anchor.Program<ProgramType>
         return gameVaultStatePda;
     }
     catch(err){
+        console.log("Error when getting game vault state PDA: ", err);
         throw err;
     }
 }
@@ -108,10 +111,11 @@ export async function fetchGlobalState(program : anchor.Program<ProgramType>, gl
     
     try{
         const globalStateAccount: GlobalStateAccount = await program.account.globalState.fetch(globalStatePda);
-        console.log("📋 Global state account", globalStateAccount);
+        console.log("📋 Global state account: ", globalStateAccount);
         return globalStateAccount;
     }
     catch(err){
+        console.log("Error when fetching global state account: ", err);
         throw err;
     }
 }
@@ -133,10 +137,11 @@ export async function fetchGameState(program : anchor.Program<ProgramType>, game
     
     try{
         const gameStateAccount: GameStateAccount = await program.account.gameState.fetch(gameStatePda);
-        console.log("🎮 Game state account", gameStateAccount);
+        console.log("🎮 Game state account: ", gameStateAccount);
         return gameStateAccount;
     }
     catch(err){
+        console.log("Error when fetching game state account: ", err);
         throw err;
     }
 }
@@ -158,10 +163,11 @@ export async function fetchGameVaultState(program : anchor.Program<ProgramType>,
     
     try{
         const gameVaultStateAccount: GameVaultStateAccount = await program.account.vault.fetch(gameVaultPda);
-        console.log("🪙 Game Vault state account", gameVaultStateAccount);
+        console.log("🪙 Game Vault state account: ", gameVaultStateAccount);
         return gameVaultStateAccount;
     }
     catch(err){
+        console.log("Error when fetching game vault state account: ", err);
         throw err;
     }
 }

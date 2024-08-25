@@ -1,4 +1,4 @@
-import {PublicKey} from '@solana/web3.js';
+import { PublicKey, PublicKeyInitData } from '@solana/web3.js';
 import {
   Account as AuthorizedAccount,
   AuthorizationResult,
@@ -8,11 +8,12 @@ import {
   DeauthorizeAPI,
   ReauthorizeAPI,
 } from '@solana-mobile/mobile-wallet-adapter-protocol';
-import {toUint8Array} from 'js-base64';
-import {useState, useCallback, useMemo, ReactNode} from 'react';
+import { toUint8Array } from 'js-base64';
+import { useState, useCallback, useMemo, ReactNode, useEffect } from 'react';
 import React from 'react';
 
-import {RPC_ENDPOINT} from './ConnectionProvider';
+import { RPC_ENDPOINT } from './ConnectionProvider';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export type Account = Readonly<{
   address: Base64EncodedAddress;
@@ -43,7 +44,7 @@ function getAuthorizationFromAuthorizationResult(
     previouslySelectedAccount == null ||
     // The previously selected account is no longer in the set of authorized addresses.
     !authorizationResult.accounts.some(
-      ({address}) => address === previouslySelectedAccount.address,
+      ({ address }) => address === previouslySelectedAccount.address,
     )
   ) {
     const firstAccount = authorizationResult.accounts[0];
@@ -91,11 +92,55 @@ const AuthorizationContext = React.createContext<AuthorizationProviderContext>({
   selectedAccount: null,
 });
 
-function AuthorizationProvider(props: {children: ReactNode}) {
-  const {children} = props;
+function cacheReviver(key: string, value: any) {
+  if (key === 'publicKey') {
+    return new PublicKey(value as PublicKeyInitData); // the PublicKeyInitData should match the actual data structure stored in AsyncStorage
+  } else {
+    return value;
+  }
+}
+
+const STORAGE_KEY = 'app-cache';
+
+function AuthorizationProvider(props: { children: ReactNode }) {
+  const { children } = props;
   const [authorization, setAuthorization] = useState<Authorization | null>(
     null,
   );
+
+  useEffect(() => {
+    // On initial load, get the prior authorization from AsyncStorage.
+    (async () => {
+      try {
+        const cacheFetchResult = await AsyncStorage.getItem(STORAGE_KEY);
+        if (cacheFetchResult !== null) {
+          // We have data!!
+          console.log(
+            'Retrieving auth ' + JSON.parse(cacheFetchResult, cacheReviver),
+          );
+          const priorAuthorization = JSON.parse(cacheFetchResult, cacheReviver);
+          setAuthorization(priorAuthorization);
+        }
+      } catch (error) {
+        // There was an error while getting the authorization
+        console.error(error);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    // Whenever the authorization updates, cache the new value.
+    (async () => {
+      try {
+        console.log('Caching auth: ' + JSON.stringify(authorization));
+        AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(authorization));
+      } catch (error) {
+        // There was an error while caching the authorization.
+        console.error(error);
+      }
+    })();
+  }, [authorization]);
+
   const handleAuthorizationResult = useCallback(
     async (
       authorizationResult: AuthorizationResult,
@@ -111,15 +156,21 @@ function AuthorizationProvider(props: {children: ReactNode}) {
   );
   const authorizeSession = useCallback(
     async (wallet: AuthorizeAPI & ReauthorizeAPI) => {
-      const authorizationResult = await (authorization
+
+      console.log("Authorize session");
+      const authorizationResult = await (
+        authorization
         ? wallet.reauthorize({
             auth_token: authorization.authToken,
             identity: APP_IDENTITY,
           })
-        : wallet.authorize({
+          :
+          wallet.authorize({
             cluster: RPC_ENDPOINT,
             identity: APP_IDENTITY,
-          }));
+          }
+          )
+      );
       return (await handleAuthorizationResult(authorizationResult))
         .selectedAccount;
     },
@@ -130,7 +181,7 @@ function AuthorizationProvider(props: {children: ReactNode}) {
       if (authorization?.authToken == null) {
         return;
       }
-      await wallet.deauthorize({auth_token: authorization.authToken});
+      await wallet.deauthorize({ auth_token: authorization.authToken });
       setAuthorization(null);
     },
     [authorization, setAuthorization],
@@ -140,7 +191,7 @@ function AuthorizationProvider(props: {children: ReactNode}) {
       setAuthorization(currentAuthorization => {
         if (
           !currentAuthorization?.accounts.some(
-            ({address}) => address === nextSelectedAccount.address,
+            ({ address }) => address === nextSelectedAccount.address,
           )
         ) {
           throw new Error(
@@ -175,4 +226,4 @@ function AuthorizationProvider(props: {children: ReactNode}) {
 
 const useAuthorization = () => React.useContext(AuthorizationContext);
 
-export {AuthorizationProvider, useAuthorization};
+export { AuthorizationProvider, useAuthorization };
