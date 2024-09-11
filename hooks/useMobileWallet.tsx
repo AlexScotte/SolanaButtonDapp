@@ -52,6 +52,8 @@ export function useMobileWallet(): MobileWallet | undefined {
                 transaction: T
             ) => {
                 return await transact(async (wallet: Web3MobileWallet) => {
+                    await authorizeSession(wallet);
+
                     const signedTransactions = await wallet.signTransactions({
                         transactions: [transaction],
                     });
@@ -62,6 +64,8 @@ export function useMobileWallet(): MobileWallet | undefined {
                 transactions: T[]
             ) => {
                 return await transact(async (wallet: Web3MobileWallet) => {
+                    await authorizeSession(wallet);
+
                     const signedTransactions = await wallet.signTransactions({
                         transactions,
                     });
@@ -70,6 +74,8 @@ export function useMobileWallet(): MobileWallet | undefined {
             },
             signMessage: async (message: Uint8Array): Promise<Uint8Array> => {
                 return await transact(async (wallet: Web3MobileWallet) => {
+                    await authorizeSession(wallet);
+
                     const signedMessages = await wallet.signMessages({
                         addresses: [selectedAccount.address],
                         payloads: [message],
