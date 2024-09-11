@@ -1,97 +1,80 @@
 import { transact } from '@solana-mobile/mobile-wallet-adapter-protocol-web3js';
-import React, { ComponentProps, useState, useCallback } from 'react';
+import React, { ComponentProps, useState, useContext, useCallback } from 'react';
 import { Button, StyleSheet, TouchableOpacity, Text, View, ActivityIndicator } from 'react-native';
 
 import { useAuthorization } from './providers/AuthorizationProvider';
 import { alertAndLog } from '../util/alertAndLog';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faWallet } from '@fortawesome/free-solid-svg-icons';
+// import Icon from 'react-native-vector-icons/FontAwesome';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { ThemeContext } from '../components/themes/ThemeContext';
 
-type Props = Readonly<ComponentProps<typeof Button>>;
+type Props = Readonly<ComponentProps<typeof Button>> & {
+  title: string;
+  icon: string;
+};
 
-export default function ConnectButton(props: Props) {
+export default function ConnectButton({ title, icon, ...props }: Props) {
+  const {theme} = useContext(ThemeContext)!;
   const { authorizeSession } = useAuthorization();
-  const [authorizationInProgress, setAuthorizationInProgress] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+
   const handleConnectPress = useCallback(async () => {
     try {
-      if (authorizationInProgress) {
-        return;
-      }
-      setAuthorizationInProgress(true);
+      
+      setLoading(true);
+
       await transact(async wallet => {
         await authorizeSession(wallet);
       });
+
     } catch (err: any) {
+
       alertAndLog(
         'Error during connect',
         err instanceof Error ? err.message : err,
       );
-    } finally {
-      setAuthorizationInProgress(false);
-    }
-  }, [authorizationInProgress, authorizeSession]);
+      setLoading(false);
+    } 
+  }, [authorizeSession]);
 
-
-  // const handleConnectPress = useCallback(async () => {
-  //   try {
-  //     if (authorizationInProgress) {
-  //       return;
-  //     }
-  //     setAuthorizationInProgress(true);
-  //     await connect();
-  //   } catch (err: any) {
-  //     alertAndLog(
-  //       "Error during connect",
-  //       err instanceof Error ? err.message : err
-  //     );
-  //   } finally {
-  //     setAuthorizationInProgress(false);
-  //   }
-  // }, [authorizationInProgress, authorizeSession]);
 
   return (
-    authorizationInProgress ? (
-      <ActivityIndicator
-      />
-    ) : (
-      <TouchableOpacity
-        disabled={authorizationInProgress}
-        onPress={handleConnectPress}
-      // style={[
-      //   styles.button,
-      //   { width: size, height: size, borderRadius: size / 2, backgroundColor },
-      // ]}
-      // onPress={onPress}
-      >
-        <View style={styles.stack}>
-          <Text>Connect</Text>
-          <FontAwesomeIcon icon={faWallet} size={20} />
+    <TouchableOpacity
+      style={[styles.button, { backgroundColor: theme.buttonBackground }]}
+      onPress={handleConnectPress}
+      disabled={loading}
+    >
+      {loading ? (
+        
+        <View style={styles.iconContainer}>
+        {/* <Text style={[styles.text, { color: theme.text }]}>Connecting</Text> */}
+        <ActivityIndicator size={24} color={theme.text} />
+      </View>
+      ) : (
+        <View style={styles.iconContainer}>
+          {/* <Text style={[styles.text, { color: theme.text }]}>{title}</Text> */}
+          <Ionicons name={icon} size={24} color={theme.text}/>
         </View>
-      </TouchableOpacity>
-    )
+      )}
+    </TouchableOpacity>
   );
-
-
 }
 
 const styles = StyleSheet.create({
-
-  stack: {
-    flexDirection: 'row',
-    // padding: 16,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    // backgroundColor: 'red',
-  },
-
-
   button: {
+    padding: 10,
+    borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 5, // pour Android
-    shadowColor: '#000', // pour iOS
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    flexDirection: 'row', 
+  },
+  iconContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  text: {
+    fontSize: 16,
+    marginRight: 10, 
   },
 });

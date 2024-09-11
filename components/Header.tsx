@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
+  Image,
   ImageBackground,
   StyleSheet,
   Text,
-  useColorScheme,
   View,
 } from 'react-native';
 import { Colors } from './Colors';
@@ -13,23 +13,37 @@ import {
   Account,
 } from '../components/providers/AuthorizationProvider';
 import DisconnectButton from './DisconnectButton';
+import { ThemeContext } from '../components/themes/ThemeContext';
 
 export function Header() {
-  const isDarkMode = useColorScheme() === 'dark';
+
+  const { theme } = useContext(ThemeContext)!;
   const { selectedAccount } = useAuthorization();
 
   return (
     <>
-      <View style={styles.header}>
-        <Text style={styles.title}>Solana</Text>
+      <View style={
+        [styles.header,
+        {
+          backgroundColor: theme.background,
+          borderBottomColor: theme.borderColor,
+        }
+        ]}>
+        <View style={styles.appName}>
+          <Image
+            source={require('../assets/solanaLogoMark.png')}
+            style={styles.image}
+          />
+
+          <Text style={[styles.title, { color: theme.text }]}>Button.sol</Text>
+        </View>
+
         {selectedAccount ? (
           <>
-            <Text>{selectedAccount.address.substring(0, 5) + "..." + selectedAccount.address.substr(selectedAccount.address.length - 5)}</Text>
-
             <DisconnectButton title="Disconnect wallet" />
           </>
         ) : (
-          <ConnectButton title="Connect wallet" />
+          <ConnectButton title="Connect" icon="wallet-outline" />
         )}
       </View>
     </>
@@ -38,19 +52,30 @@ export function Header() {
 
 const styles = StyleSheet.create({
 
+  appName: {
+    flexDirection: 'row', // Alignement horizontal
+    alignItems: 'center', // Centrer verticalement
+    padding: 10,
+  },
+
   header: {
     flexDirection: 'row',
     padding: 16,
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'red',
+    borderBottomWidth: 3,
   },
 
   title: {
-    color: '#333',
     fontSize: 24,
     fontWeight: '500',
     textAlign: 'left',
+    marginLeft: 10,
+  },
+  image: {
+    width: 30,
+    height: 30,
+    resizeMode: 'contain',
   },
 
 });
