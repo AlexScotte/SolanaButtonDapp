@@ -3,7 +3,12 @@
  */
 import {Buffer} from 'buffer';
 import 'react-native-get-random-values';
+
 global.Buffer = Buffer;
+
+global.structuredClone = val => {
+    return JSON.parse(JSON.stringify(val))
+}
 
 import {AppRegistry} from 'react-native';
 import App from './App';
