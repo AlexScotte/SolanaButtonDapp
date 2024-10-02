@@ -8,6 +8,7 @@ const SEED_VAULT = "vault";
 const ERROR_PROGRAM_ID = "Program ID not found";
 const ERROR_PDA = "PDA not found";
 
+
 /**
  * Get the global state account Program Derived Address
  * composed of the seed "global"
@@ -94,6 +95,28 @@ export async function getGameVaultStatePDA(program : anchor.Program<ProgramType>
 }
 
 
+
+export async function fetchAllGameState(program : anchor.Program<ProgramType>){
+    if (!program.programId)
+        throw new Error(ERROR_PROGRAM_ID)
+
+    // const gameStatePda = await getGameStatePDA(program, gameId);
+
+    // if (!gameStatePda)
+    //     throw new Error(ERROR_PDA);
+
+    try {
+        // const gameStateAccount: GameStateAccount = await program.account.gameState.fetch(gameStatePda);
+        const gameStateAccounts: any = await program.account.gameState.all();
+        console.log("🎮 Game state accountssss: ", gameStateAccounts);
+        // return gameStateAccount;
+    }
+    catch (err) {
+        console.log("❌ Error when fetching game state account: ", err);
+        throw err;
+    }
+}
+
 /**
  * Fetch the global state account
  * @param program Solana program 
@@ -178,7 +201,12 @@ export async function fetchGameVaultState(program : anchor.Program<ProgramType>,
     }
 }
 
-
+/**
+ * Subscribe to the global state account changes
+ * @param connection anchor web3 connection
+ * @param program program
+ * @param callback method to call when the global state account is updated
+ */
 export async function subscribeGlobalState(connection: anchor.web3.Connection, program : anchor.Program<ProgramType>, callback: (updatedAccount: any) => void){
     
     const globalStatePda = await getGlobalStatePDA(program);
@@ -190,6 +218,13 @@ export async function subscribeGlobalState(connection: anchor.web3.Connection, p
     });
   }
 
+/**
+ * Subscribe to the game state account changes
+ * @param connection anchor web3 connection 
+ * @param program solana program
+ * @param gameId game ID
+ * @param callback method to call when the game state account is updated
+ */
 export async function subscribeGameState(connection: anchor.web3.Connection, program : anchor.Program<ProgramType>, gameId: number, callback: (updatedAccount: any) => void){
     
     const gameStatePda = await getGameStatePDA(program, gameId);
@@ -201,6 +236,13 @@ export async function subscribeGameState(connection: anchor.web3.Connection, pro
     });
   }
 
+  /**
+   * Subscribe to the game vault state account changes
+   * @param connection anchor web3 connection
+   * @param program solana program
+   * @param gameId game ID
+   * @param callback method to call when the game vault state account is updated
+   */
 export async function subscribeGameVaultState(connection: anchor.web3.Connection, program : anchor.Program<ProgramType>, gameId: number, callback: (updatedAccount: any) => void){
     
     const gameVaultPda = await getGameVaultStatePDA(program, gameId);

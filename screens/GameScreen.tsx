@@ -12,9 +12,10 @@ import { GameStateAccount, GameVaultStateAccount, GlobalStateAccount } from '../
 import { calculateRemainingTime, getHourMinuteSecond, getShortAddress, lamportInSol } from '../utils/helper';
 import Countdown from '../components/Countdown';
 import { toastSuccess } from '../utils/toast/toastHelper';
+import { Header } from '../components/Header';
 
 
-export default function HomeScreen() {
+export default function GameScreen() {
     const solanaLogo = require('../assets/solanaLogoMark.png');
     const { program } = getAnchorConfig();
     const connectionContext = useConnection();
@@ -151,7 +152,12 @@ export default function HomeScreen() {
     }, [gameState, isGameStarted, appState]);
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={styles.safeAreaView}>
+            
+            <Header />
+            
+            <View style={styles.container}>
+
             {/* "Click & Win" */}
             <View style={styles.clickWinContainer2}>
                 <Text style={styles.clickText}>Click & Win</Text>
@@ -230,11 +236,15 @@ export default function HomeScreen() {
                     </View>
                 </View>
             </View>
+            </View>
         </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
+    safeAreaView: {
+        flex: 1,
+    },
     container: {
         flex: 1,
         backgroundColor: '#181818',
