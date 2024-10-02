@@ -15,6 +15,8 @@ import { Keypair } from '@solana/web3.js';
 import { bs58 } from '@coral-xyz/anchor/dist/cjs/utils/bytes';
 import MainScreen from './screens/MainScreen';
 import { ThemeProvider } from './components/themes/ThemeContext';
+import Toast from 'react-native-toast-message';
+import { toastConfig } from './utils/toast/toastConfig';
 
 export default function App() {
 
@@ -27,6 +29,7 @@ export default function App() {
           <SafeAreaView style={styles.shell}>
             <Header />
             <HomeScreen />
+            <Toast config={toastConfig}/>
           </SafeAreaView>
         </AuthorizationProvider>
       </ThemeProvider>

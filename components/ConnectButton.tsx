@@ -3,10 +3,10 @@ import React, { ComponentProps, useState, useContext, useCallback } from 'react'
 import { Button, StyleSheet, TouchableOpacity, Text, View, ActivityIndicator } from 'react-native';
 
 import { useAuthorization } from './providers/AuthorizationProvider';
-import { alertAndLog } from '../util/alertAndLog';
 // import Icon from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { ThemeContext } from '../components/themes/ThemeContext';
+import { toastError, toastInfo, toastSuccess } from '../utils/toast/toastHelper';
 
 type Props = Readonly<ComponentProps<typeof Button>> & {
   title: string;
@@ -23,18 +23,19 @@ export default function ConnectButton({ title, icon, ...props }: Props) {
     try {
       
       setLoading(true);
+      toastInfo('Connecting', 'Please wait...');
 
       await transact(async wallet => {
         await authorizeSession(wallet);
       });
 
-    } catch (err: any) {
-
-      alertAndLog(
-        'Error during connect',
-        err instanceof Error ? err.message : err,
-      );
       setLoading(false);
+      toastSuccess('Connected', 'You are now connected to your wallet !');
+
+    } catch (err: any) {
+      
+      setLoading(false);
+      toastError('Connection error', err.message);
     } 
   }, [authorizeSession]);
 
