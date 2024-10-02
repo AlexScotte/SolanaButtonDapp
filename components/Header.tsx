@@ -35,7 +35,7 @@ export function Header() {
             style={styles.image}
           />
 
-          <Text style={[styles.title, { color: theme.text }]}>Button.sol</Text>
+          <Text style={[styles.title, { color: theme.text }]}>Beta.Button.sol</Text>
         </View>
 
         {selectedAccount ? (
