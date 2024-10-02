@@ -26,11 +26,11 @@ export async function getGlobalStatePDA(program : anchor.Program<ProgramType>)
             program.programId
         );
     
-        console.log("Global State PDA: ", globalStatePda);
+        console.log("📱 Global State PDA: ", globalStatePda);
         return globalStatePda;
     }
     catch(err){
-        console.log("Error when getting global state PDA: ", err);
+        console.log("❌ Error when getting global state PDA: ", err);
         throw err;
     }
 }
@@ -55,11 +55,11 @@ export async function getGameStatePDA(program : anchor.Program<ProgramType>, gam
             program.programId
         );
     
-        console.log("Game State PDA: ", gameStatePda);
+        console.log("📱 Game State PDA: ", gameStatePda);
         return gameStatePda;
     }
     catch(err){
-        console.log("Error when getting game state PDA: ", err);
+        console.log("❌ Error when getting game state PDA: ", err);
         throw err;
     }
 }
@@ -84,11 +84,11 @@ export async function getGameVaultStatePDA(program : anchor.Program<ProgramType>
             program.programId
         );
     
-        console.log("Game Vault State PDA: ", gameVaultStatePda);
+        console.log("📱 Game Vault State PDA: ", gameVaultStatePda);
         return gameVaultStatePda;
     }
     catch(err){
-        console.log("Error when getting game vault state PDA: ", err);
+        console.log("❌ Error when getting game vault state PDA: ", err);
         throw err;
     }
 }
@@ -100,11 +100,13 @@ export async function getGameVaultStatePDA(program : anchor.Program<ProgramType>
  * @param globalStatePda Global state Program Derived Address
  * @returns Global state account
  */
-export async function fetchGlobalState(program : anchor.Program<ProgramType>, globalStatePda: anchor.web3.PublicKey) 
+export async function fetchGlobalState(program : anchor.Program<ProgramType>) 
     : Promise<GlobalStateAccount> {
     
     if(!program.programId)
         throw new Error(ERROR_PROGRAM_ID)
+
+    const globalStatePda = await getGlobalStatePDA(program);
 
     if(!globalStatePda)
         throw new Error(ERROR_PDA);
@@ -115,7 +117,7 @@ export async function fetchGlobalState(program : anchor.Program<ProgramType>, gl
         return globalStateAccount;
     }
     catch(err){
-        console.log("Error when fetching global state account: ", err);
+        console.log("❌ Error when fetching global state account: ", err);
         throw err;
     }
 }
@@ -123,14 +125,16 @@ export async function fetchGlobalState(program : anchor.Program<ProgramType>, gl
 /**
  * Fetch the game state account
  * @param program Solana program 
- * @param gameStatePda Game state Program Derived Address
+ * @param gameId Game ID
  * @returns Game state account
  */
-export async function fetchGameState(program : anchor.Program<ProgramType>, gameStatePda: anchor.web3.PublicKey) 
+export async function fetchGameState(program : anchor.Program<ProgramType>, gameId: number) 
     : Promise<GameStateAccount> {
     
     if(!program.programId)
         throw new Error(ERROR_PROGRAM_ID)
+
+    const gameStatePda = await getGameStatePDA(program, gameId);
 
     if(!gameStatePda)
         throw new Error(ERROR_PDA);
@@ -141,7 +145,7 @@ export async function fetchGameState(program : anchor.Program<ProgramType>, game
         return gameStateAccount;
     }
     catch(err){
-        console.log("Error when fetching game state account: ", err);
+        console.log("❌ Error when fetching game state account: ", err);
         throw err;
     }
 }
@@ -149,25 +153,61 @@ export async function fetchGameState(program : anchor.Program<ProgramType>, game
 /**
  * Fetch the game vault account
  * @param program Solana program 
- * @param gameVaultPda Game vault Program Derived Address
+ * @param gameId Game ID
  * @returns Game vault account
  */
-export async function fetchGameVaultState(program : anchor.Program<ProgramType>, gameVaultPda: anchor.web3.PublicKey) 
+export async function fetchGameVaultState(program : anchor.Program<ProgramType>, gameId: number) 
     : Promise<GameVaultStateAccount> {
     
     if(!program.programId)
         throw new Error(ERROR_PROGRAM_ID)
+
+    const gameVaultPda = await getGameVaultStatePDA(program, gameId);
 
     if(!gameVaultPda)
         throw new Error(ERROR_PDA);
     
     try{
         const gameVaultStateAccount: GameVaultStateAccount = await program.account.vault.fetch(gameVaultPda);
-        console.log("🪙 Game Vault state account: ", gameVaultStateAccount);
+        console.log("🪙  Game Vault state account: ", gameVaultStateAccount);
         return gameVaultStateAccount;
     }
     catch(err){
-        console.log("Error when fetching game vault state account: ", err);
+        console.log("❌ Error when fetching game vault state account: ", err);
         throw err;
     }
 }
+
+
+export async function subscribeGlobalState(connection: anchor.web3.Connection, program : anchor.Program<ProgramType>, callback: (updatedAccount: any) => void){
+    
+    const globalStatePda = await getGlobalStatePDA(program);
+    
+    connection.onAccountChange(globalStatePda, (account) => {
+      const updatedAccount = program.coder.accounts.decode("globalState", account.data);
+      console.log("🔄️ Global state account updated !", updatedAccount);
+      callback(updatedAccount);
+    });
+  }
+
+export async function subscribeGameState(connection: anchor.web3.Connection, program : anchor.Program<ProgramType>, gameId: number, callback: (updatedAccount: any) => void){
+    
+    const gameStatePda = await getGameStatePDA(program, gameId);
+    
+    connection.onAccountChange(gameStatePda, (account) => {
+      const updatedAccount = program.coder.accounts.decode("gameState", account.data);
+      console.log("🔄️ Game state account updated !", updatedAccount);
+      callback(updatedAccount);
+    });
+  }
+
+export async function subscribeGameVaultState(connection: anchor.web3.Connection, program : anchor.Program<ProgramType>, gameId: number, callback: (updatedAccount: any) => void){
+    
+    const gameVaultPda = await getGameVaultStatePDA(program, gameId);
+    
+    connection.onAccountChange(gameVaultPda, (account) => {
+      const updatedAccount = program.coder.accounts.decode("vault", account.data);
+      console.log("🔄️ Game vault state account updated !", updatedAccount);
+      callback(updatedAccount);
+    });
+  }

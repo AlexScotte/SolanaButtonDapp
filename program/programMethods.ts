@@ -4,6 +4,7 @@ import { fetchGameState, fetchGameVaultState, fetchGlobalState, getGameStatePDA,
 import { GameStateAccount, GameVaultStateAccount, GlobalStateAccount } from "./programTypes";
 import { useConnection } from '../components/providers/ConnectionProvider';
 import { useMobileWallet, MobileWallet } from '../hooks/useMobileWallet';
+import { toastInfo } from "../utils/toast/toastHelper";
 
 /**
  * Call the program to verify the game state
@@ -29,13 +30,13 @@ export async function verifyGameState(connection: anchor.web3.Connection, progra
             })
             .rpc();
 
-            console.log("📝 Transaction signature: ", tx);
+        console.log("📝 Transaction signature: ", tx);
 
-            await connection.confirmTransaction(tx);
+        await connection.confirmTransaction(tx);
 
-            console.log("✅ Game verified successfully");
+        console.log("✅ Game verified successfully");
 
-            return tx;
+        return tx;
     }
     catch (err) {
         console.log("Error when verifying game state: ", err);
@@ -55,12 +56,11 @@ export async function clickButton(connection: anchor.web3.Connection, mobileWall
         console.log("⌛ Trying to click on the button");
 
         const globalStatePda: anchor.web3.PublicKey = await getGlobalStatePDA(program);
-        const globaleStateAccount: GlobalStateAccount = await fetchGlobalState(program, globalStatePda);
-
-        const gameStatePda: anchor.web3.PublicKey = await getGameStatePDA(program, globaleStateAccount.activeGameId);
+        const globaleStateAccount: GlobalStateAccount = await fetchGlobalState(program);
 
         const gameVaultPda: anchor.web3.PublicKey = await getGameVaultStatePDA(program, globaleStateAccount.activeGameId);
-        const gameVaultAccount: GameVaultStateAccount = await fetchGameVaultState(program, gameVaultPda);
+        const gameVaultAccount: GameVaultStateAccount = await fetchGameVaultState(program, globaleStateAccount.activeGameId)
+        const gameStatePda: anchor.web3.PublicKey = await getGameStatePDA(program, globaleStateAccount.activeGameId);
 
         // const tx: anchor.web3.TransactionSignature = await program.methods
         //     .verifyGameState()
@@ -72,16 +72,16 @@ export async function clickButton(connection: anchor.web3.Connection, mobileWall
         //     })
         //     .rpc();
 
-  const instructions = await program.instruction.verifyGameState(
-            {
-              accounts: {
-                globalState: globalStatePda,
-                gameState: gameStatePda,
-        
-                systemProgram: anchor.web3.SystemProgram.programId,
-              },
-            }
-          );
+        // const instructions = await program.instruction.verifyGameState(
+        //     {
+        //         accounts: {
+        //             globalState: globalStatePda,
+        //             gameState: gameStatePda,
+
+        //             systemProgram: anchor.web3.SystemProgram.programId,
+        //         },
+        //     }
+        // );
 
 
 
@@ -98,40 +98,40 @@ export async function clickButton(connection: anchor.web3.Connection, mobileWall
         //     })
         //     .rpc();
 
-        // const instructions = await program.instruction.clickButton(
-        //     new anchor.BN(gameVaultAccount.depositAmount),
-        //     {
-        //       accounts: {
-        //         globalState: globalStatePda,
-        //         gameState: gameStatePda,
-        //         vault: gameVaultPda,
-        //         user: mobileWallet.publicKey,
-        
-        //         systemProgram: anchor.web3.SystemProgram.programId,
-        //       },
-        //     }
-        //   );
-      
-          const latestBlockhashInfo = await connection.getLatestBlockhash("confirmed");
-      
-          const transaction = new anchor.web3.Transaction({
+        const instructions = await program.instruction.clickButton(
+            new anchor.BN(gameVaultAccount.depositAmount),
+            {
+                accounts: {
+                    globalState: globalStatePda,
+                    gameState: gameStatePda,
+                    vault: gameVaultPda,
+                    user: mobileWallet.publicKey,
+
+                    systemProgram: anchor.web3.SystemProgram.programId,
+                },
+            }
+        );
+
+        const latestBlockhashInfo = await connection.getLatestBlockhash("confirmed");
+
+        const transaction = new anchor.web3.Transaction({
             blockhash: latestBlockhashInfo.blockhash,
             feePayer: mobileWallet.publicKey,
             lastValidBlockHeight: latestBlockhashInfo.lastValidBlockHeight,
-          }).add(instructions);
-      
-          console.log(mobileWallet);
-          const tx = await mobileWallet.signAndSendTransaction(
+        }).add(instructions);
+
+        const tx = await mobileWallet.signAndSendTransaction(
             transaction
-          );
+        );
 
-            console.log("📝 Transaction signature", tx);
+        console.log("📝 Transaction signature", tx);
+        toastInfo("Transaction in progress", `tx: ${tx}`);
 
-            await connection.confirmTransaction(tx);
+        await connection.confirmTransaction(tx);
 
-            console.log("✅ Click button done successfully");
+        console.log("✅ Click button done successfully");
 
-            return tx;
+        return tx;
     }
     catch (err) {
         console.log("Error when clicking on the button: ", err);
@@ -163,13 +163,13 @@ export async function claimReward(connection: anchor.web3.Connection, mobileWall
             })
             .rpc();
 
-            console.log("📝 Transaction signature", tx);
+        console.log("📝 Transaction signature", tx);
 
-            await connection.confirmTransaction(tx);
+        await connection.confirmTransaction(tx);
 
-            console.log("✅ Reward claimed successfully");
+        console.log("✅ Reward claimed successfully");
 
-            return tx;
+        return tx;
     }
     catch (err) {
         console.log("Error when claiming the reward: ", err);
