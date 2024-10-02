@@ -1,11 +1,13 @@
 import { transact } from '@solana-mobile/mobile-wallet-adapter-protocol-web3js';
 import React, { ComponentProps, useCallback, useContext, useState } from 'react';
-import { ActivityIndicator, Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Button, StyleSheet, Text, TouchableOpacity, View  } from 'react-native';
 
 import { useAuthorization } from './providers/AuthorizationProvider';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { ThemeContext } from '../components/themes/ThemeContext';
-import { alertAndLog } from '../util/alertAndLog';
+import Clipboard from '@react-native-clipboard/clipboard';
+import { toastError, toastSuccess } from '../utils/toast/toastHelper';
+
 type Props = Readonly<ComponentProps<typeof Button>>;
 
 export default function DisconnectButton(props: Props) {
@@ -22,29 +24,34 @@ export default function DisconnectButton(props: Props) {
       await transact(async wallet => {
         await deauthorizeSession(wallet)
         setLoading(false);
-
       });
 
+      toastSuccess("Wallet disconnected", "You have successfully disconnected your wallet");
     } catch (err: any) {
 
-      alertAndLog(
-        'Error during connect',
-        err instanceof Error ? err.message : err,
-      );
+      toastError("Failed to disconnect wallet", err);
       setLoading(false);
     }
   }, [deauthorizeSession]);
+
+  const handleAddressPress = () => {
+    if(selectedAccount?.address){
+
+      Clipboard.setString(selectedAccount.publicKey.toBase58());
+    }
+  }
 
   return (
 
     
       <View style={styles.container}>
 
-        <TouchableOpacity style={[styles.addressContainer, { borderColor: theme.buttonBackground }]}>
+        <TouchableOpacity style={[styles.addressContainer, { borderColor: theme.buttonBackground }]}
+        onPress={handleAddressPress}>
           <Text style={[styles.text, { color: theme.text }]}>
           {
-            selectedAccount?.address ?
-              selectedAccount.address.substring(0, 5) + "..." + selectedAccount.address.substr(selectedAccount.address.length - 5)
+            selectedAccount?.publicKey ?
+              selectedAccount.publicKey.toBase58().substring(0, 5) + "..." + selectedAccount.publicKey.toBase58().substr(selectedAccount.address.length - 5)
             :
               "No account"
           }
@@ -53,7 +60,8 @@ export default function DisconnectButton(props: Props) {
         </TouchableOpacity>
 
 
-        <TouchableOpacity style={[styles.button, { backgroundColor: theme.buttonBackground }]} onPress={handleDisconnectPress}>
+        <TouchableOpacity style={[styles.button, { backgroundColor: theme.buttonBackground }]} 
+        onPress={handleDisconnectPress}>
 
           {loading ? (
 
