@@ -62,12 +62,13 @@ const styles = StyleSheet.create({
     timeText: {
         fontSize: 42,
         color: '#FFFFFF',
-        fontWeight: 'bold',
+        fontFamily: 'suissnord',
     },
     labelText: {
         fontSize: 14,
         color: '#BBBBBB',
         marginTop: 5,
+        fontFamily: 'neuropolitical',
     },
     colon: {
         fontSize: 32,

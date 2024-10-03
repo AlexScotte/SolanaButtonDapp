@@ -270,15 +270,15 @@ const styles = StyleSheet.create({
         margin: 20,
     },
     clickText: {
+        fontFamily: 'neuropolitical',
         fontSize: 48,
         color: '#FFFFFF',
-        fontWeight: 'bold',
         lineHeight: 48,
     },
     text: {
+        fontFamily: 'neuropolitical',
         fontSize: 30,
         color: '#FFFFFF',
-        fontWeight: 'bold',
         lineHeight: 48,
     },
 
@@ -301,9 +301,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     numericValue: {
-        fontSize: 36,
+        fontFamily: 'suissnord',
+        fontSize: 40,
         color: '#FFFFFF',
-        marginRight: 10,
+        marginRight: 20,
     },
     logo: {
         width: 30,
@@ -331,10 +332,12 @@ const styles = StyleSheet.create({
         marginVertical: 5,
     },
     label: {
+        fontFamily: 'neuropolitical',
         fontSize: 18,
         color: '#FFFFFF',
     },
     value: {
+        fontFamily: 'suissnord',
         fontSize: 18,
         color: '#FFFFFF',
     },

@@ -95,28 +95,6 @@ export async function getGameVaultStatePDA(program : anchor.Program<ProgramType>
 }
 
 
-
-export async function fetchAllGameState(program : anchor.Program<ProgramType>){
-    if (!program.programId)
-        throw new Error(ERROR_PROGRAM_ID)
-
-    // const gameStatePda = await getGameStatePDA(program, gameId);
-
-    // if (!gameStatePda)
-    //     throw new Error(ERROR_PDA);
-
-    try {
-        // const gameStateAccount: GameStateAccount = await program.account.gameState.fetch(gameStatePda);
-        const gameStateAccounts: any = await program.account.gameState.all();
-        console.log("🎮 Game state accountssss: ", gameStateAccounts);
-        // return gameStateAccount;
-    }
-    catch (err) {
-        console.log("❌ Error when fetching game state account: ", err);
-        throw err;
-    }
-}
-
 /**
  * Fetch the global state account
  * @param program Solana program 
@@ -141,6 +119,31 @@ export async function fetchGlobalState(program : anchor.Program<ProgramType>)
     }
     catch(err){
         console.log("❌ Error when fetching global state account: ", err);
+        throw err;
+    }
+}
+
+/**
+ * Fetch all game state accounts
+ * @param program 
+ * @returns All game state accounts
+ */
+export async function fetchAllGameState(program : anchor.Program<ProgramType>)
+: Promise<GameStateAccount[]>{
+
+    if (!program.programId)
+        throw new Error(ERROR_PROGRAM_ID)
+
+    try {
+        const gameStateAccounts: GameStateAccount[] = 
+            (await program.account.gameState.all())
+                .map(account => account.account as GameStateAccount);
+                
+        console.log("🧾 All Game state accounts: ", gameStateAccounts);
+        return gameStateAccounts;
+    }
+    catch (err) {
+        console.log("❌ Error when fetching all game state accounts: ", err);
         throw err;
     }
 }
@@ -172,6 +175,32 @@ export async function fetchGameState(program : anchor.Program<ProgramType>, game
         throw err;
     }
 }
+
+/**
+ * Fetch all game vault accounts
+ * @param program 
+ * @returns All game vault accounts
+ */
+export async function fetchAllGameVaultState(program : anchor.Program<ProgramType>)
+: Promise<GameVaultStateAccount[]>{
+
+    if (!program.programId)
+        throw new Error(ERROR_PROGRAM_ID)
+
+    try {
+        const gameVaultStateAccounts: GameVaultStateAccount[] = 
+            (await program.account.vault.all())
+                .map(account => account.account as GameVaultStateAccount);
+                
+        console.log("🧾 All Game Vault state accounts: ", gameVaultStateAccounts);
+        return gameVaultStateAccounts;
+    }
+    catch (err) {
+        console.log("❌ Error when fetching all game vault accounts: ", err);
+        throw err;
+    }
+}
+
 
 /**
  * Fetch the game vault account

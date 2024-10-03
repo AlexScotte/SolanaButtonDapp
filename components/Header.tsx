@@ -68,10 +68,11 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '500',
     textAlign: 'left',
     marginLeft: 10,
+    fontFamily: 'neuropolitical',
   },
   image: {
     width: 30,
