@@ -1,0 +1,21 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "assets/fonts/neolatina.ttf",
+      "sha1": "7095f95687e8dd644bb2b956ad1d350629cf63b7"
+    },
+    {
+      "path": "assets/fonts/neuropolitical.otf",
+      "sha1": "f05791c1268565fd720a3057b7bbe73dd5ce0d9c"
+    },
+    {
+      "path": "assets/fonts/suissnord.otf",
+      "sha1": "2a8eead36d36b5785337f2134e6df30b1075be41"
+    },
+    {
+      "path": "assets/fonts/verminvibes.otf",
+      "sha1": "6dd36b35eb7b958a00c2b2285fd86440b562e452"
+    }
+  ]
+}
