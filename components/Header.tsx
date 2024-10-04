@@ -14,6 +14,7 @@ import {
 } from '../components/providers/AuthorizationProvider';
 import DisconnectButton from './DisconnectButton';
 import { ThemeContext } from '../components/themes/ThemeContext';
+import { LinearGradient } from 'react-native-linear-gradient';
 
 export function Header() {
 
@@ -22,6 +23,7 @@ export function Header() {
 
   return (
     <>
+     
       <View style={
         [styles.header,
         {
@@ -46,6 +48,12 @@ export function Header() {
           <ConnectButton title="Connect" icon="wallet-outline" />
         )}
       </View>
+      <LinearGradient
+                colors={['#8A3EE6', '#12D485']}
+                start={{ x: 0, y: 1 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.headerBorder}
+            />
     </>
   );
 }
@@ -64,9 +72,12 @@ const styles = StyleSheet.create({
     padding: 16,
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderBottomWidth: 3,
+    // borderBottomWidth: 3,
   },
-
+  headerBorder: {
+    width: '100%',
+    paddingBottom: 3,
+},
   title: {
     fontSize: 20,
     fontWeight: '500',

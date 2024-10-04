@@ -8,7 +8,7 @@ import { getAnchorConfig } from '../program/config';
 import { GameStateAccount, GameVaultStateAccount } from '../program/programTypes';
 import { toastError } from '../utils/toast/toastHelper';
 import { useMobileWallet } from '../hooks/useMobileWallet';
-import { getHourMinuteSecond, getShortAddress, lamportInSol } from '../utils/helper';
+import { calculateRemainingTime, getHourMinuteSecond, getShortAddress, lamportInSol } from '../utils/helper';
 import LinearGradient from 'react-native-linear-gradient';
 
 type RootStackParamList = {
@@ -33,8 +33,8 @@ const GameListScreen: React.FC<GameListScreenProps> = ({ navigation }) => {
     const { program } = getAnchorConfig();
     const [games, setGames] = useState<GameStateAccount[]>([]);
     const [vaults, setVaults] = useState<GameVaultStateAccount[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [showEndedGames, setShowEndedGames] = useState(false);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [showEndedGames, setShowEndedGames] = useState<boolean>(false);
     const mobileWallet = useMobileWallet()!;
 
     const fetchGameListData = useCallback(async () => {
@@ -81,13 +81,35 @@ const GameListScreen: React.FC<GameListScreenProps> = ({ navigation }) => {
         navigation.navigate('Game', { gameId });
     }, [navigation]);
 
+    const renderItem = ({ item }: { item: GameStateAccount }) => (
+        <GameCard
+            gameStateAccount={item}
+            onPress={handleGamePress}
+        />
+    );
+
+    const isGameEnded = (gameStateAccount: GameStateAccount) => {
+
+        const remainingTime = calculateRemainingTime(gameStateAccount);
+        return gameStateAccount.hasEnded || remainingTime <= 0;
+    }
+
+    const filteredGames = showEndedGames ? games : games.filter(game => !isGameEnded(game));
+
     const GameCard: React.FC<GameCardProps> = ({ gameStateAccount, onPress }) => {
 
-        const { hours, minutes, seconds } = getHourMinuteSecond(gameStateAccount.gameTimeSec);
+        const [isGameEnded, setIsGameEnded] = useState<boolean>(false);
+
+        const remainingTime = calculateRemainingTime(gameStateAccount);
+        const { hours, minutes, seconds } = getHourMinuteSecond(remainingTime);
+
+        useEffect(() => {
+            setIsGameEnded(gameStateAccount.hasEnded || remainingTime <= 0);
+        }, [gameStateAccount.hasEnded, remainingTime]);
 
         return (
             <LinearGradient
-                colors={ gameStateAccount.hasEnded ?  ['#7A7A7A', '#8A8A8A']: ['#9945FF', '#14F195']  }
+                colors={isGameEnded ? ['#7A7A7A', '#8A8A8A'] : ['#8A3EE6', '#12D485']}
                 start={{ x: 0, y: 1 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.cardBorder}
@@ -110,7 +132,7 @@ const GameListScreen: React.FC<GameListScreenProps> = ({ navigation }) => {
                         <Text style={styles.cardText}>Clicks: {gameStateAccount.clickNumber.toString()}</Text>
                     </View>
                     <View style={styles.cardStatus}>
-                        {gameStateAccount.hasEnded ? (
+                        {isGameEnded ? (
                             <>
                                 <Text style={styles.statusText}>Game Ended</Text>
                                 <Text style={styles.resultText}>
@@ -131,15 +153,6 @@ const GameListScreen: React.FC<GameListScreenProps> = ({ navigation }) => {
 
         )
     };
-
-    const renderItem = ({ item }: { item: GameStateAccount }) => (
-        <GameCard
-            gameStateAccount={item}
-            onPress={handleGamePress}
-        />
-    );
-
-    const filteredGames = showEndedGames ? games : games.filter(game => !game.hasEnded);
 
     return (
         <SafeAreaView style={styles.safeAreaView}>
@@ -172,12 +185,22 @@ const GameListScreen: React.FC<GameListScreenProps> = ({ navigation }) => {
                         </TouchableOpacity>
                     )}
                 </View>
-                <FlatList
-                    data={filteredGames}
-                    renderItem={renderItem}
-                    keyExtractor={(gameStateAccount: GameStateAccount) => gameStateAccount.gameId}
-                    contentContainerStyle={styles.listContainer}
-                />
+
+                {
+                    filteredGames.length === 0 ? (
+                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                            <Text style={styles.noActiveGameText}>No active games found</Text>
+                        </View>
+                    ) : (
+                        <FlatList
+                            data={filteredGames}
+                            renderItem={renderItem}
+                            keyExtractor={(gameStateAccount: GameStateAccount) => gameStateAccount.gameId}
+                            contentContainerStyle={styles.listContainer}
+                        />
+                    )
+                }
+
             </View>
         </SafeAreaView >
     );
@@ -279,8 +302,12 @@ const styles = StyleSheet.create({
     resultText: {
         color: '#9945FF',
         fontSize: 14,
-        fontWeight: 'bold',
         marginTop: 4,
+        fontFamily: 'neuropolitical',
+    },
+    noActiveGameText: {
+        color: '#14F195',
+        fontSize: 24,
         fontFamily: 'neuropolitical',
     },
 
