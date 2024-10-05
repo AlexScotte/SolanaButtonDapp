@@ -14,6 +14,7 @@ import { calculateRemainingTime, getHourMinuteSecond, getShortAddress, lamportIn
 import Countdown from '../components/Countdown';
 import { toastSuccess } from '../utils/toast/toastHelper';
 import { Header } from '../components/Header';
+import LinearGradient from 'react-native-linear-gradient';
 
 
 type RootStackParamList = {
@@ -199,7 +200,7 @@ export default function GameScreen({ route }: { route: GameScreenRouteProp }) {
 
                 {/* Solana Button */}
                 <View style={styles.buttonContainer}>
-                    <SolanaButton 
+                    <SolanaButton
                         isGameEnded={isGameEnded}
                         isCurrentUserWinner={isUserLeader}
                     />
@@ -249,7 +250,12 @@ export default function GameScreen({ route }: { route: GameScreenRouteProp }) {
                 </View>
 
                 {/* Card with current winner and number of clicks */}
-                <View style={{ flex: .5, justifyContent: 'center', alignItems: 'center', width: '100%', }}>
+                <LinearGradient
+                    colors={['#8A3EE6', '#12D485']}
+                    start={{ x: 0, y: 1 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.cardBorder}
+                >
                     <View style={styles.card}>
                         <View style={styles.row}>
                             <Text style={styles.label}>Game ID:</Text>
@@ -264,9 +270,9 @@ export default function GameScreen({ route }: { route: GameScreenRouteProp }) {
                             <Text style={styles.value}>{gameState?.clickNumber.toString()}</Text>
                         </View>
                     </View>
-                </View>
+                </LinearGradient>
             </View>
-        </SafeAreaView>
+        </SafeAreaView >
     );
 };
 
@@ -311,15 +317,15 @@ const styles = StyleSheet.create({
         lineHeight: 48,
     },
 
-    // Card with emoji and numeric value
     card: {
         backgroundColor: '#242424',
-        borderRadius: 10,
         padding: 20,
-        marginVertical: 10,
         flexDirection: 'column',
         justifyContent: 'space-between',
-        width: '70%',
+        borderTopLeftRadius: 20,
+        borderBottomRightRadius: 20,
+        height: "100%",
+        
     },
     emoji: {
         fontSize: 50,
@@ -369,5 +375,14 @@ const styles = StyleSheet.create({
         fontFamily: 'suissnord',
         fontSize: 18,
         color: '#FFFFFF',
+    },
+    cardBorder: {
+        padding: 2,
+        flex: .5,
+        width: '70%',
+        borderTopLeftRadius: 20,
+        borderBottomRightRadius: 20,
+        borderWidth: 2,
+        marginTop: 20,
     },
 });
