@@ -15,6 +15,7 @@ import Countdown from '../components/Countdown';
 import { toastSuccess } from '../utils/toast/toastHelper';
 import { Header } from '../components/Header';
 import LinearGradient from 'react-native-linear-gradient';
+import { moderateScale } from 'react-native-size-matters';
 
 
 type RootStackParamList = {
@@ -178,8 +179,8 @@ export default function GameScreen({ route }: { route: GameScreenRouteProp }) {
             <View style={styles.container}>
 
                 {/* "Click & Win" */}
-                <View style={styles.clickWinContainer2}>
-                    <Text style={styles.clickText}>Click & Win</Text>
+                <View style={styles.clickWinContainer}>
+                    <Text style={styles.clickAndWinText}>Click & Win</Text>
                 </View>
 
                 {/* Card with emoji and numeric value */}
@@ -196,7 +197,9 @@ export default function GameScreen({ route }: { route: GameScreenRouteProp }) {
 
 
                 {/* Countdown */}
-                <Countdown hours={hours} minutes={minutes} seconds={seconds} />
+                <View style={styles.countdownContainer}>
+                    <Countdown hours={hours} minutes={minutes} seconds={seconds} />
+                </View>
 
                 {/* Solana Button */}
                 <View style={styles.buttonContainer}>
@@ -298,31 +301,24 @@ const styles = StyleSheet.create({
     clickWinContainer: {
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 30,
     },
-    clickWinContainer2: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        margin: 20,
-    },
-    clickText: {
+    clickAndWinText: {
         fontFamily: 'neuropolitical',
-        fontSize: 48,
+        fontSize: moderateScale(30),
         color: '#FFFFFF',
-        lineHeight: 48,
     },
     text: {
         fontFamily: 'neuropolitical',
-        fontSize: 30,
+        fontSize: moderateScale(20),
         color: '#FFFFFF',
-        lineHeight: 48,
+        marginTop: 10,
     },
 
     card: {
         backgroundColor: '#242424',
         padding: 20,
         flexDirection: 'column',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
         borderTopLeftRadius: 20,
         borderBottomRightRadius: 20,
         height: "100%",
@@ -338,15 +334,19 @@ const styles = StyleSheet.create({
     },
     numericValue: {
         fontFamily: 'suissnord',
-        fontSize: 40,
+        fontSize: moderateScale(30),
         color: '#FFFFFF',
         marginRight: 20,
     },
     logo: {
-        width: 30,
-        height: 30,
+        width: moderateScale(20),
+        height: moderateScale(20),
     },
+    countdownContainer:{
 
+        flex: .5,
+        width: '100%',
+    },
     // Button container
     buttonContainer: {
         flex: .8,
@@ -359,28 +359,27 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginVertical: 5,
+        marginVertical: moderateScale(3),
     },
     column: {
         flexDirection: 'column',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginVertical: 5,
     },
     label: {
         fontFamily: 'neuropolitical',
-        fontSize: 18,
+        fontSize: moderateScale(12),
         color: '#FFFFFF',
     },
     value: {
         fontFamily: 'suissnord',
-        fontSize: 18,
+        fontSize: moderateScale(12),
         color: '#FFFFFF',
     },
     cardBorder: {
         padding: 2,
-        flex: .5,
-        width: '70%',
+        height: moderateScale(100),
+        width: '90%',
         borderTopLeftRadius: 20,
         borderBottomRightRadius: 20,
         borderWidth: 2,

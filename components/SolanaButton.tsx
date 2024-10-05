@@ -19,6 +19,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { toastError, toastInfo, toastSuccess } from '../utils/toast/toastHelper';
 import { getAnchorConfig } from '../program/config';
+import { moderateScale } from 'react-native-size-matters';
 
 interface SolanaButtonProps {
   gameId: anchor.BN;
@@ -174,7 +175,8 @@ export const SolanaButton: React.FC<SolanaButtonProps> = ({ gameId, isGameEnded,
     <TouchableOpacity onPress={handlePress} style={styles.buttonContainer} disabled={isGameEnded && !isCurrentUserWinner}>
       <Animated.View style={[styles.gradientWrapper, { transform: [{ scale: scaleAnim }] }]}>
         <LinearGradient
-          colors={isGameEnded ? isCurrentUserWinner ?  ['#FFD700', '#FFA500'] : ['#A9A9A9', '#D3D3D3'] : ['#9945FF', '#14F195']}
+          // colors={isGameEnded ? isCurrentUserWinner ?  ['#FFD700', '#FFA500'] : ['#A9A9A9', '#D3D3D3'] : ['#9945FF', '#14F195']}
+          colors={ ['#9945FF', '#14F195']}
           style={styles.gradient}
           start={{ x: 0, y: 1 }}
           end={{ x: 1, y: 0 }}
@@ -198,8 +200,8 @@ export const SolanaButton: React.FC<SolanaButtonProps> = ({ gameId, isGameEnded,
 
 const styles = StyleSheet.create({
   gradientBackground: {
-    width: 200,
-    height: 200,
+    width: "100%",
+    height: "100%",
     borderRadius: 200,
     justifyContent: 'center',
     alignItems: 'center',
@@ -208,14 +210,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
-    width: 200,
-    height: 200,
+    width: "100%",
+    height: "100%",
   },
   gradientWrapper: {
     position: 'absolute',
-    width: 250,
-    height: 250,
-    borderRadius: 200,
+    height: moderateScale(180),
+    width: moderateScale(180),
+    borderRadius: 250,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -237,8 +239,8 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   logo: {
-    width: 120,
-    height: 120,
+    width: moderateScale(90),
+    height: moderateScale(90),
     zIndex: 1,
   },
   text: {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { moderateScale } from 'react-native-size-matters';
 
 export default function Countdown({ hours, minutes, seconds }: { hours: number, minutes: number, seconds: number }) {
 
@@ -63,45 +64,46 @@ export default function Countdown({ hours, minutes, seconds }: { hours: number, 
 
 const styles = StyleSheet.create({
     container: {
-        // backgroundColor: 'red',
-        height: 200,
+        height: "100%",
+        width: "100%",
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        marginVertical: 20,
     },
     cardBorder: {
         padding: 2,
     },
     cardHours: {
-        borderTopLeftRadius: 10,
-        borderTopRightRadius: 10,
-        borderBottomRightRadius: 10,
+        borderTopLeftRadius: 15,
+        borderBottomLeftRadius: 15,
+        // borderTopRightRadius: 20,
+        // borderBottomRightRadius: 20,
     },
     cardMinutes: {
-        borderTopLeftRadius: 10,
-        borderTopRightRadius: 10,
-        borderBottomLeftRadius: 10,
-        borderBottomRightRadius: 10,
+        // borderTopLeftRadius:20,
+        // borderTopRightRadius: 20,
+        // borderBottomLeftRadius: 20,
+        // borderBottomRightRadius: 20,
     },
     cardSeconds: {
-        borderTopLeftRadius: 10,
-        borderBottomLeftRadius: 10,
-        borderBottomRightRadius: 10,
+        // borderTopLeftRadius: 20,
+        // borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 15,
+        borderTopRightRadius: 15,
     },
     cardContainer: {
         alignItems: 'center',
         marginHorizontal: 10,
     },
     card: {
-        width: 100,
-        height: 100,
+        height: moderateScale(70),
+        width: moderateScale(70),
         backgroundColor: '#242424',
         justifyContent: 'center',
         alignItems: 'center',
     },
     timeText: {
-        fontSize: 42,
+        fontSize: moderateScale(30),
         color: '#FFFFFF',
         fontFamily: 'suissnord',
     },

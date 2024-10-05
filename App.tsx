@@ -41,11 +41,6 @@ export default function App() {
                   name="Game" 
                   component={GameScreen} 
                   options={{ headerShown: false }} />
-              {/* <SafeAreaView style={styles.shell}> */}
-                {/* <Header /> */}
-                {/* <HomeScreen /> */}
-                {/* <Toast config={toastConfig} /> */}
-              {/* </SafeAreaView> */}
             </Stack.Navigator>
             <Toast config={toastConfig} />
           </NavigationContainer>
