@@ -51,9 +51,11 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '900',
     marginBottom: 5,
+    color: '#181818',
   } as TextStyle,
   text2: {
     fontSize: 13,
+    color: '#181818',
   } as TextStyle,
 });
 

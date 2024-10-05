@@ -162,6 +162,7 @@ export default function GameScreen({ route }: { route: GameScreenRouteProp }) {
                     return prevTime - 1; // Decrease by 1 second
                 } else {
                     clearInterval(interval); // Stop the countdown
+                    setIsGameEnded(true);
                     return 0;
                 }
             });
@@ -309,7 +310,7 @@ const styles = StyleSheet.create({
     },
     text: {
         fontFamily: 'neuropolitical',
-        fontSize: moderateScale(20),
+        fontSize: moderateScale(15),
         color: '#FFFFFF',
         marginTop: 10,
     },

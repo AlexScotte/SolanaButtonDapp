@@ -46,12 +46,10 @@ export const SolanaButton: React.FC<SolanaButtonProps> = ({ gameId, isGameEnded,
         return;
       }
 
-      
-
       if(isGameEnded && isCurrentUserWinner) {
       
           if(isCurrentUserWinner){
-
+            await handleClaimReward();
           }
           else{
             return;
@@ -60,24 +58,6 @@ export const SolanaButton: React.FC<SolanaButtonProps> = ({ gameId, isGameEnded,
       else{
         await handleClickButton();
       }
-
-     
-
-
-
-
-      // Sign and send a simple message using the mobile wallet.
-
-      //     const message = 'Hello Solana Mobile!';
-      //     const messageBuffer = new Uint8Array(
-      //       message.split('').map(c => c.charCodeAt(0)),
-      //     );
-
-      // // Sign the payload with the provided address from authorization.
-      // const tx = await mobileWallet.signMessage(
-      //   messageBuffer
-      // );
-
   };
 
   const handleClickButton = async () =>{
@@ -92,6 +72,19 @@ export const SolanaButton: React.FC<SolanaButtonProps> = ({ gameId, isGameEnded,
 
       toastSuccess("Transaction success !", `Transaction signature: ${tx}`);
       stopAnimation();
+
+
+      // Sign and send a simple message using the mobile wallet.
+
+      //     const message = 'Hello Solana Mobile!';
+      //     const messageBuffer = new Uint8Array(
+      //       message.split('').map(c => c.charCodeAt(0)),
+      //     );
+
+      // // Sign the payload with the provided address from authorization.
+      // const tx = await mobileWallet.signMessage(
+      //   messageBuffer
+      // );
     }
     catch (err) {
 
@@ -175,8 +168,7 @@ export const SolanaButton: React.FC<SolanaButtonProps> = ({ gameId, isGameEnded,
     <TouchableOpacity onPress={handlePress} style={styles.buttonContainer} disabled={isGameEnded && !isCurrentUserWinner}>
       <Animated.View style={[styles.gradientWrapper, { transform: [{ scale: scaleAnim }] }]}>
         <LinearGradient
-          // colors={isGameEnded ? isCurrentUserWinner ?  ['#FFD700', '#FFA500'] : ['#A9A9A9', '#D3D3D3'] : ['#9945FF', '#14F195']}
-          colors={ ['#9945FF', '#14F195']}
+          colors={isGameEnded ? isCurrentUserWinner ?  ['#FFD700', '#FFA500'] : ['#A9A9A9', '#D3D3D3'] : ['#9945FF', '#14F195']}
           style={styles.gradient}
           start={{ x: 0, y: 1 }}
           end={{ x: 1, y: 0 }}
