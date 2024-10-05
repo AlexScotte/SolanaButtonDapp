@@ -203,6 +203,7 @@ export default function GameScreen({ route }: { route: GameScreenRouteProp }) {
                     <SolanaButton
                         isGameEnded={isGameEnded}
                         isCurrentUserWinner={isUserLeader}
+                        gameId={gameId}
                     />
                 </View>
 

@@ -10,7 +10,7 @@ import { Connection, sendAndConfirmTransaction } from '@solana/web3.js';
 import { Keypair } from '@solana/web3.js';
 import { bs58 } from '@coral-xyz/anchor/dist/cjs/utils/bytes';
 import { fetchGameState, fetchGameVaultState, fetchGlobalState, getGameStatePDA, getGameVaultStatePDA, getGlobalStatePDA } from '../program/programAccounts';
-import { clickButton } from '../program/programMethods';
+import { claimReward, clickButton } from '../program/programMethods';
 import {
   transact,
   Web3MobileWallet,
@@ -21,11 +21,12 @@ import { toastError, toastInfo, toastSuccess } from '../utils/toast/toastHelper'
 import { getAnchorConfig } from '../program/config';
 
 interface SolanaButtonProps {
+  gameId: anchor.BN;
   isGameEnded: boolean;
   isCurrentUserWinner: boolean;
 }
 
-export const SolanaButton: React.FC<SolanaButtonProps> = ({ isGameEnded, isCurrentUserWinner }) => {
+export const SolanaButton: React.FC<SolanaButtonProps> = ({ gameId, isGameEnded, isCurrentUserWinner }) => {
 
   const solanaLogo = require('../assets/solanaLogoMarkBlack.png');
   const mobileWallet = useMobileWallet()!;
@@ -38,29 +39,28 @@ export const SolanaButton: React.FC<SolanaButtonProps> = ({ isGameEnded, isCurre
 
   const handlePress = async () => {
 
-    try {
 
       if (!mobileWallet) {
         toastError("Wallet not connected", "Please connect your wallet to continue");
         return;
       }
 
-      try {
+      
 
-        startAnimation();
-        const tx = await clickButton(connection, mobileWallet, program);
+      if(isGameEnded && isCurrentUserWinner) {
+      
+          if(isCurrentUserWinner){
 
-        const globalStateAcc = await fetchGlobalState(program);
-        await fetchGameState(program, globalStateAcc.activeGameId);
-
-        toastSuccess("Transaction success !", `Transaction signature: ${tx}`);
-        stopAnimation();
+          }
+          else{
+            return;
+          }
       }
-      catch (err) {
-
-        toastError("Transaction Error", `Error while clicking the button (${err})`);
-        stopAnimation();
+      else{
+        await handleClickButton();
       }
+
+     
 
 
 
@@ -77,13 +77,48 @@ export const SolanaButton: React.FC<SolanaButtonProps> = ({ isGameEnded, isCurre
       //   messageBuffer
       // );
 
-
-    }
-    catch (err) {
-      console.log("error", err);
-    }
   };
 
+  const handleClickButton = async () =>{
+
+    try {
+
+      startAnimation();
+      const tx = await clickButton(connection, mobileWallet, program, gameId);
+
+      await fetchGameState(program, gameId);
+      await fetchGameVaultState(program, gameId);
+
+      toastSuccess("Transaction success !", `Transaction signature: ${tx}`);
+      stopAnimation();
+    }
+    catch (err) {
+
+      toastError("Transaction Error", `Error while clicking the button (${err})`);
+      stopAnimation();
+    }
+  }
+
+  const handleClaimReward = async () => {
+
+    try {
+
+      startAnimation();
+      const tx = await claimReward(connection, mobileWallet, program, gameId);
+
+      await fetchGameState(program, gameId);
+      await fetchGameVaultState(program, gameId);
+
+      toastSuccess("Transaction success !", `Transaction signature: ${tx}`);
+      stopAnimation();
+    }
+    catch (err) {
+
+      toastError("Transaction Error", `Error while claiming the reward (${err})`);
+      stopAnimation();
+    }
+  };
+  
   const startAnimation = () => {
     setAnimating(true);
     animationRef.current = Animated.loop(

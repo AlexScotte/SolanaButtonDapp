@@ -11,6 +11,7 @@ import { useMobileWallet } from '../hooks/useMobileWallet';
 import { calculateRemainingTime, getHourMinuteSecond, getShortAddress, lamportInSol } from '../utils/helper';
 import LinearGradient from 'react-native-linear-gradient';
 import * as anchor from "@coral-xyz/anchor";
+import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 
 type RootStackParamList = {
     GameList: undefined;
@@ -186,11 +187,11 @@ const GameListScreen: React.FC<GameListScreenProps> = ({ navigation }) => {
                     </View>
                     {loading ? (
                         <View style={styles.refreshButton}>
-                            <ActivityIndicator size={30} color="#FFFFFF" />
+                            <ActivityIndicator size={moderateScale(25)} color="#FFFFFF" />
                         </View>
                     ) : (
                         <TouchableOpacity onPress={handleRefresh} style={styles.refreshButton}>
-                            <Ionicons name="refresh" size={30} color="#FFFFFF" />
+                            <Ionicons name="refresh" size={moderateScale(25)} color="#FFFFFF" />
                         </TouchableOpacity>
                     )}
                 </View>
@@ -221,7 +222,7 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        padding: 20,
+        padding: moderateScale(0),
         backgroundColor: '#181818',
     },
     header: {
@@ -231,12 +232,12 @@ const styles = StyleSheet.create({
         padding: 16,
     },
     headerTitle: {
-        fontSize: 42,
+        fontSize: moderateScale(30),
         color: '#FFFFFF',
         fontFamily: 'neuropolitical',
     },
     filterEndedText: {
-        fontSize: 16,
+        fontSize: moderateScale(14),
         marginTop: 3,
         color: '#FFFFFF',
         fontFamily: 'neuropolitical',
@@ -255,7 +256,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     listContainer: {
-        paddingHorizontal: 16,
+        paddingHorizontal: moderateScale(10),
     },
     cardBorder: {
         marginBottom: 16,
@@ -268,7 +269,8 @@ const styles = StyleSheet.create({
     card: {
         flexDirection: 'row',
         backgroundColor: '#2A2A2A',
-        padding: 16,
+        paddingVertical: moderateScale(16),
+        paddingHorizontal: moderateScale(10),
         elevation: 3,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
@@ -278,8 +280,8 @@ const styles = StyleSheet.create({
         borderBottomRightRadius: 20,
     },
     cardImageContainer: {
-        width: 40,
-        height: 40,
+        width: moderateScale(30),
+        height: moderateScale(30),
         padding: 4,
         alignSelf: 'center',
     },
@@ -290,12 +292,12 @@ const styles = StyleSheet.create({
     },
     cardContent: {
         flex: 1,
-        marginLeft: 16,
+        marginLeft: moderateScale(10),
         justifyContent: 'center',
     },
     cardText: {
         color: '#FFFFFF',
-        fontSize: 14,
+        fontSize: moderateScale(10),
         marginBottom: 4,
         fontFamily: 'neuropolitical',
     },
@@ -305,18 +307,18 @@ const styles = StyleSheet.create({
     },
     statusText: {
         color: '#14F195',
-        fontSize: 12,
+        fontSize: moderateScale(10),
         fontFamily: 'neuropolitical',
     },
     resultText: {
         color: '#9945FF',
-        fontSize: 14,
+        fontSize: moderateScale(12),
         marginTop: 4,
         fontFamily: 'neuropolitical',
     },
     noActiveGameText: {
         color: '#14F195',
-        fontSize: 24,
+        fontSize: moderateScale(15),
         fontFamily: 'neuropolitical',
     },
 

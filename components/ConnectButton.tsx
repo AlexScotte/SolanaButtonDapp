@@ -7,6 +7,7 @@ import { useAuthorization } from './providers/AuthorizationProvider';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { ThemeContext } from '../components/themes/ThemeContext';
 import { toastError, toastInfo, toastSuccess } from '../utils/toast/toastHelper';
+import { moderateScale } from 'react-native-size-matters';
 
 type Props = Readonly<ComponentProps<typeof Button>> & {
   title: string;
@@ -50,12 +51,12 @@ export default function ConnectButton({ title, icon, ...props }: Props) {
         
         <View style={styles.iconContainer}>
         {/* <Text style={[styles.text, { color: theme.text }]}>Connecting</Text> */}
-        <ActivityIndicator size={24} color={theme.text} />
+        <ActivityIndicator size={moderateScale(20)} color={theme.text} />
       </View>
       ) : (
         <View style={styles.iconContainer}>
           {/* <Text style={[styles.text, { color: theme.text }]}>{title}</Text> */}
-          <Ionicons name={icon} size={24} color={theme.text}/>
+          <Ionicons name={icon} size={moderateScale(20)} color={theme.text}/>
         </View>
       )}
     </TouchableOpacity>

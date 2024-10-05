@@ -15,6 +15,7 @@ import {
 import DisconnectButton from './DisconnectButton';
 import { ThemeContext } from '../components/themes/ThemeContext';
 import { LinearGradient } from 'react-native-linear-gradient';
+import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 
 export function Header() {
 
@@ -69,7 +70,7 @@ const styles = StyleSheet.create({
   header: {
     width: '100%',
     flexDirection: 'row',
-    padding: 16,
+    padding: moderateScale(10),
     alignItems: 'center',
     justifyContent: 'space-between',
     // borderBottomWidth: 3,
@@ -79,15 +80,15 @@ const styles = StyleSheet.create({
     paddingBottom: 3,
 },
   title: {
-    fontSize: 20,
+    fontSize: moderateScale(10),
     fontWeight: '500',
     textAlign: 'left',
     marginLeft: 10,
     fontFamily: 'neuropolitical',
   },
   image: {
-    width: 30,
-    height: 30,
+    width: moderateScale(20),
+    height: moderateScale(20),
     resizeMode: 'contain',
   },
 

@@ -49,18 +49,17 @@ export async function verifyGameState(connection: anchor.web3.Connection, progra
  * @param program Solana Program
  * @returns Transaction signature
  */
-export async function clickButton(connection: anchor.web3.Connection, mobileWallet: MobileWallet, program: anchor.Program<ProgramType>)
+export async function clickButton(connection: anchor.web3.Connection, mobileWallet: MobileWallet, program: anchor.Program<ProgramType>, gameId: anchor.BN)
     : Promise<anchor.web3.TransactionSignature> {
 
     try {
         console.log("⌛ Trying to click on the button");
 
         const globalStatePda: anchor.web3.PublicKey = await getGlobalStatePDA(program);
-        const globaleStateAccount: GlobalStateAccount = await fetchGlobalState(program);
 
-        const gameVaultPda: anchor.web3.PublicKey = await getGameVaultStatePDA(program, globaleStateAccount.activeGameId);
-        const gameVaultAccount: GameVaultStateAccount = await fetchGameVaultState(program, globaleStateAccount.activeGameId)
-        const gameStatePda: anchor.web3.PublicKey = await getGameStatePDA(program, globaleStateAccount.activeGameId);
+        const gameVaultPda: anchor.web3.PublicKey = await getGameVaultStatePDA(program, gameId);
+        const gameVaultAccount: GameVaultStateAccount = await fetchGameVaultState(program, gameId);
+        const gameStatePda: anchor.web3.PublicKey = await getGameStatePDA(program, gameId);
 
         // const tx: anchor.web3.TransactionSignature = await program.methods
         //     .verifyGameState()
@@ -146,24 +145,52 @@ export async function clickButton(connection: anchor.web3.Connection, mobileWall
  * @param gameVaultPda Game vault Program Derived Address (user can claim reward from past game state)
  * @returns Transaction signature
  */
-export async function claimReward(connection: anchor.web3.Connection, mobileWallet: MobileWallet, program: anchor.Program<ProgramType>, gameStatePda: anchor.web3.PublicKey, gameVaultPda: anchor.web3.PublicKey)
+export async function claimReward(connection: anchor.web3.Connection, mobileWallet: MobileWallet, program: anchor.Program<ProgramType>, gameId: anchor.BN)
     : Promise<anchor.web3.TransactionSignature> {
 
     try {
         console.log("⌛ Trying to claim the reward");
 
-        const tx: anchor.web3.TransactionSignature = await program.methods
-            .claimReward()
-            .accounts({
-                gameState: gameStatePda,
-                vault: gameVaultPda,
-                user: mobileWallet.publicKey,
+        const gameVaultPda: anchor.web3.PublicKey = await getGameVaultStatePDA(program, gameId);
+        const gameStatePda: anchor.web3.PublicKey = await getGameStatePDA(program, gameId);
 
-                systemProgram: anchor.web3.SystemProgram.programId,
-            })
-            .rpc();
+        // const tx: anchor.web3.TransactionSignature = await program.methods
+        //     .claimReward()
+        //     .accounts({
+        //         gameState: gameStatePda,
+        //         vault: gameVaultPda,
+        //         user: mobileWallet.publicKey,
+
+        //         systemProgram: anchor.web3.SystemProgram.programId,
+        //     })
+        //     .rpc();
+
+        const instructions = await program.instruction.claimReward(
+            {
+                accounts: {
+                    gameState: gameStatePda,
+                    vault: gameVaultPda,
+                    user: mobileWallet.publicKey,
+
+                    systemProgram: anchor.web3.SystemProgram.programId,
+                },
+            }
+        );
+
+        const latestBlockhashInfo = await connection.getLatestBlockhash("confirmed");
+
+        const transaction = new anchor.web3.Transaction({
+            blockhash: latestBlockhashInfo.blockhash,
+            feePayer: mobileWallet.publicKey,
+            lastValidBlockHeight: latestBlockhashInfo.lastValidBlockHeight,
+        }).add(instructions);
+
+        const tx = await mobileWallet.signAndSendTransaction(
+            transaction
+        );
 
         console.log("📝 Transaction signature", tx);
+        toastInfo("Transaction in progress", `tx: ${tx}`);
 
         await connection.confirmTransaction(tx);
 

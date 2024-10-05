@@ -7,6 +7,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { ThemeContext } from '../components/themes/ThemeContext';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { toastError, toastSuccess } from '../utils/toast/toastHelper';
+import { moderateScale } from 'react-native-size-matters';
 
 type Props = Readonly<ComponentProps<typeof Button>>;
 
@@ -65,10 +66,10 @@ export default function DisconnectButton(props: Props) {
 
           {loading ? (
 
-            <ActivityIndicator size={24} color={theme.text} />
+            <ActivityIndicator size={moderateScale(20)} color={theme.text} />
           ) : (
 
-            <Ionicons name="log-out-outline" size={24} color={theme.text} />
+            <Ionicons name="log-out-outline" size={moderateScale(20)} color={theme.text} />
 
           )}
 
@@ -84,7 +85,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   button: {
-    padding: 10,
+    padding: moderateScale(6),
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
@@ -92,7 +93,7 @@ const styles = StyleSheet.create({
   },
   addressContainer: {
     borderWidth: 2,
-    borderRadius: 20,
+    borderRadius: moderateScale(20),
     paddingHorizontal: 15,
     paddingRight: 50,
     marginRight: -40,
@@ -100,6 +101,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',                              
   },
   text: {
-    fontSize: 16,
+    fontSize: moderateScale(10),
   },
 });
