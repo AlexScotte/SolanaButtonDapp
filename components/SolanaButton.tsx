@@ -20,8 +20,12 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { toastError, toastInfo, toastSuccess } from '../utils/toast/toastHelper';
 import { getAnchorConfig } from '../program/config';
 
+interface SolanaButtonProps {
+  isGameEnded: boolean;
+  isCurrentUserWinner: boolean;
+}
 
-export const SolanaButton = () => {
+export const SolanaButton: React.FC<SolanaButtonProps> = ({ isGameEnded, isCurrentUserWinner }) => {
 
   const solanaLogo = require('../assets/solanaLogoMarkBlack.png');
   const mobileWallet = useMobileWallet()!;
@@ -30,7 +34,7 @@ export const SolanaButton = () => {
   const animationRef = useRef<Animated.CompositeAnimation | null>(null);
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const opacityAnim = useRef(new Animated.Value(0.5)).current;
-  const {program, provider} = getAnchorConfig();
+  const { program, provider } = getAnchorConfig();
 
   const handlePress = async () => {
 
@@ -41,7 +45,7 @@ export const SolanaButton = () => {
         return;
       }
 
-      try{
+      try {
 
         startAnimation();
         const tx = await clickButton(connection, mobileWallet, program);
@@ -52,13 +56,13 @@ export const SolanaButton = () => {
         toastSuccess("Transaction success !", `Transaction signature: ${tx}`);
         stopAnimation();
       }
-      catch(err){
-      
+      catch (err) {
+
         toastError("Transaction Error", `Error while clicking the button (${err})`);
         stopAnimation();
       }
 
-     
+
 
 
       // Sign and send a simple message using the mobile wallet.
@@ -126,36 +130,42 @@ export const SolanaButton = () => {
   return (
     // <LinearGradient
     // colors={['rgba(153, 69, 255, 0.6)', 'rgba(20, 241, 149, 0.3)', 'rgba(20, 241, 149, 0)']}
-  
+
     //   style={styles.gradientBackground}
     //   // style={styles.gradient}
     //   start={{ x: 0, y: 1 }}
     //   end={{ x: 1, y: 0 }}
     // >
-      <TouchableOpacity onPress={handlePress} style={styles.buttonContainer}>
-        <Animated.View style={[styles.gradientWrapper, { transform: [{ scale: scaleAnim }] }]}>
-          <LinearGradient
-            colors={['#9945FF', '#14F195']}
-            style={styles.gradient}
-            start={{ x: 0, y: 1 }}
-            end={{ x: 1, y: 0 }}
-          >
-            <Animated.View style={[styles.ring, { opacity: opacityAnim }]} />
-          </LinearGradient>
-        </Animated.View>
+    <TouchableOpacity onPress={handlePress} style={styles.buttonContainer} disabled={isGameEnded && !isCurrentUserWinner}>
+      <Animated.View style={[styles.gradientWrapper, { transform: [{ scale: scaleAnim }] }]}>
+        <LinearGradient
+          colors={isGameEnded ? isCurrentUserWinner ?  ['#FFD700', '#FFA500'] : ['#A9A9A9', '#D3D3D3'] : ['#9945FF', '#14F195']}
+          style={styles.gradient}
+          start={{ x: 0, y: 1 }}
+          end={{ x: 1, y: 0 }}
+        >
+          <Animated.View style={[styles.ring, { opacity: opacityAnim }]} />
+        </LinearGradient>
+      </Animated.View>
 
-        {/* <Ionicons name="rocket-outline" size={40} color="#FFFFFF" style={styles.icon} /> */}
+      {/* <Ionicons name="rocket-outline" size={40} color="#FFFFFF" style={styles.icon} /> */}
+      {
+        isGameEnded && isCurrentUserWinner ?
+
+        <Text style={styles.text}>{"Claim "}</Text>
+        :
         <Image source={solanaLogo} style={styles.logo} />
-      </TouchableOpacity>
+      }
+    </TouchableOpacity>
     // </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   gradientBackground: {
-    width: 200, 
-    height: 200, 
-    borderRadius: 200, 
+    width: 200,
+    height: 200,
+    borderRadius: 200,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -195,5 +205,10 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     zIndex: 1,
-},
+  },
+  text: {
+    fontFamily: 'neuropolitical',
+    fontSize: 40,
+    color: '#2E2E2E',
+  },
 });

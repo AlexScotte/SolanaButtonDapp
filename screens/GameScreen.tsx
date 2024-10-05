@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
 import * as anchor from "@coral-xyz/anchor";
 import { AppState, View, StyleSheet, SafeAreaView, Text, Image, AppStateStatus } from 'react-native';
+import { RouteProp } from '@react-navigation/native';
 import { SolanaButton } from '../components/SolanaButton';
 import { fetchGlobalState, fetchGameState, fetchGameVaultState, subscribeGlobalState, subscribeGameState, subscribeGameVaultState } from '../program/programAccounts';
 import { useConnection } from '../components/providers/ConnectionProvider';
@@ -15,7 +16,16 @@ import { toastSuccess } from '../utils/toast/toastHelper';
 import { Header } from '../components/Header';
 
 
-export default function GameScreen() {
+type RootStackParamList = {
+    Game: { gameId: anchor.BN };
+};
+
+type GameScreenRouteProp = RouteProp<RootStackParamList, 'Game'>;
+
+export default function GameScreen({ route }: { route: GameScreenRouteProp }) {
+
+    const { gameId } = route.params;
+
     const solanaLogo = require('../assets/solanaLogoMark.png');
     const { program } = getAnchorConfig();
     const connectionContext = useConnection();
@@ -27,6 +37,7 @@ export default function GameScreen() {
     const [gameVaultState, setGameVaultState] = React.useState<GameVaultStateAccount>();
     const [remainingTime, setRemainingTime] = React.useState(0);
     const [isGameStarted, setIsGameStarted] = React.useState(false);
+    const [isGameEnded, setIsGameEnded] = React.useState(false);
     const [isUserLeader, setIsUserLeader] = React.useState(false);
     const { hours, minutes, seconds } = getHourMinuteSecond(remainingTime);
 
@@ -76,13 +87,13 @@ export default function GameScreen() {
     useEffect(() => {
         const fetchGameData = async () => {
             try {
-                const game = await fetchGameState(program, 1);
+                const game = await fetchGameState(program, gameId);
                 setGameData(game);
 
                 subscribeGameState(
                     connectionContext.connection,
                     program,
-                    1,
+                    gameId,
                     (updatedAccount: GameStateAccount) => setGameData(updatedAccount)
                 );
             } catch (error) {
@@ -107,12 +118,12 @@ export default function GameScreen() {
     useEffect(() => {
         const fetchVaultData = async () => {
             try {
-                const vault = await fetchGameVaultState(program, 1);
+                const vault = await fetchGameVaultState(program, gameId);
                 setGameVaultState(vault);
                 subscribeGameVaultState(
                     connectionContext.connection,
                     program,
-                    1,
+                    gameId,
                     (updatedAccount: GameVaultStateAccount) => setGameVaultState(updatedAccount)
                 );
             } catch (error) {
@@ -130,9 +141,16 @@ export default function GameScreen() {
             return;
 
         const remainingTime = calculateRemainingTime(gameState);
-        setRemainingTime(remainingTime);
+        if (remainingTime <= 0) {
 
-        if (!isGameStarted)
+            setRemainingTime(0);
+            setIsGameEnded(true);
+        }
+        else {
+            setRemainingTime(remainingTime);
+        }
+
+        if (!isGameStarted || isGameEnded)
             return;
 
         // Start countdown
@@ -153,89 +171,100 @@ export default function GameScreen() {
 
     return (
         <SafeAreaView style={styles.safeAreaView}>
-            
+
             <Header />
-            
+
             <View style={styles.container}>
 
-            {/* "Click & Win" */}
-            <View style={styles.clickWinContainer2}>
-                <Text style={styles.clickText}>Click & Win</Text>
-            </View>
+                {/* "Click & Win" */}
+                <View style={styles.clickWinContainer2}>
+                    <Text style={styles.clickText}>Click & Win</Text>
+                </View>
 
-            {/* Card with emoji and numeric value */}
-            {/* <View style={styles.card}> */}
+                {/* Card with emoji and numeric value */}
+                {/* <View style={styles.card}> */}
                 {/* <View style={styles.row}> */}
-                    {/* <Text style={styles.emoji}>💰</Text> */}
-                    <View style={styles.cardContent}>
-                        <Text style={styles.numericValue}>{lamportInSol(gameVaultState?.balance)}</Text>
-                        <Image source={solanaLogo} style={styles.logo} />
-                    </View>
+                {/* <Text style={styles.emoji}>💰</Text> */}
+                <View style={styles.cardContent}>
+                    <Text style={styles.numericValue}>{lamportInSol(gameVaultState?.balance)}</Text>
+                    <Image source={solanaLogo} style={styles.logo} />
+                </View>
                 {/* </View> */}
-            {/* </View> */}
+                {/* </View> */}
 
 
 
-            {/* Countdown */}
-            <Countdown hours={hours} minutes={minutes} seconds={seconds} />
+                {/* Countdown */}
+                <Countdown hours={hours} minutes={minutes} seconds={seconds} />
 
-            {/* Solana Button */}
-            <View style={styles.buttonContainer}>
-                <SolanaButton />
-            </View>
+                {/* Solana Button */}
+                <View style={styles.buttonContainer}>
+                    <SolanaButton 
+                        isGameEnded={isGameEnded}
+                        isCurrentUserWinner={isUserLeader}
+                    />
+                </View>
 
-            <View>
+                <View>
 
-                <View style={styles.column}>
+                    <View style={styles.column}>
 
-                    <Text style={styles.text}>
+                        <Text style={styles.text}>
 
+                            {
+                                isGameEnded ?
+                                    "Game Ended"
+                                    :
+                                    // if there is no clicker yet
+                                    isGameStarted ?
+                                        isUserLeader ?
+                                            "👑 You are the leader ! 👑"
+                                            :
+                                            "Current leader:"
+                                        :
+                                        "⬆️ Be the first one to click ! ⬆️"
+                            }
+                        </Text>
                         {
                             // if there is no clicker yet
                             isGameStarted ?
-                                isUserLeader ?
-                                    "👑 You are the leader ! 👑"
-                                    :
-                                    "Current leader:"
+                                <Text style={styles.text}>
+                                    {
+                                        gameState?.lastClicker ?
+                                            isGameEnded ?
+
+                                                `🏆 ${getShortAddress(gameState.lastClicker.toString())} 🏆`
+                                                :
+                                                getShortAddress(gameState.lastClicker.toString())
+                                            :
+                                            "No leader yet"
+                                    }
+                                </Text>
                                 :
-                                "⬆️ Be the first one to click ! ⬆️"
+                                <>
+                                </>
                         }
-                    </Text>
-                    {
-                        isGameStarted ?
-                            <Text style={styles.text}>
-                                {
-                                    gameState?.lastClicker ?
-                                        getShortAddress(gameState.lastClicker.toString())
-                                        :
-                                        "No leader yet"
-                                }
-                            </Text>
-                            :
-                            <>
-                            </>
-                    }
 
-                </View>
-            </View>
-
-            {/* Card with current winner and number of clicks */}
-            <View style={{ flex: .5, justifyContent: 'center', alignItems: 'center', width: '100%', }}>
-                <View style={styles.card}>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Game ID:</Text>
-                        <Text style={styles.value}>{gameState?.gameId.toString()}</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Deposit amount:</Text>
-                        <Text style={styles.value}>{lamportInSol(gameVaultState?.depositAmount).toString()}</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Number of clicks:</Text>
-                        <Text style={styles.value}>{gameState?.clickNumber.toString()}</Text>
                     </View>
                 </View>
-            </View>
+
+                {/* Card with current winner and number of clicks */}
+                <View style={{ flex: .5, justifyContent: 'center', alignItems: 'center', width: '100%', }}>
+                    <View style={styles.card}>
+                        <View style={styles.row}>
+                            <Text style={styles.label}>Game ID:</Text>
+                            <Text style={styles.value}>{gameState?.gameId.toString()}</Text>
+                        </View>
+                        <View style={styles.row}>
+                            <Text style={styles.label}>Deposit amount:</Text>
+                            <Text style={styles.value}>{lamportInSol(gameVaultState?.depositAmount).toString()}</Text>
+                        </View>
+                        <View style={styles.row}>
+                            <Text style={styles.label}>Number of clicks:</Text>
+                            <Text style={styles.value}>{gameState?.clickNumber.toString()}</Text>
+                        </View>
+                    </View>
+                </View>
             </View>
         </SafeAreaView>
     );

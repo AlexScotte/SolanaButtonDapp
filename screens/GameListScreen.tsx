@@ -10,6 +10,7 @@ import { toastError } from '../utils/toast/toastHelper';
 import { useMobileWallet } from '../hooks/useMobileWallet';
 import { calculateRemainingTime, getHourMinuteSecond, getShortAddress, lamportInSol } from '../utils/helper';
 import LinearGradient from 'react-native-linear-gradient';
+import * as anchor from "@coral-xyz/anchor";
 
 type RootStackParamList = {
     GameList: undefined;
@@ -77,7 +78,7 @@ const GameListScreen: React.FC<GameListScreenProps> = ({ navigation }) => {
         fetchGameListData();
     }, []);
 
-    const handleGamePress = useCallback((gameId: string) => {
+    const handleGamePress = useCallback((gameId: anchor.BN ) => {
         navigation.navigate('Game', { gameId });
     }, [navigation]);
 
@@ -96,7 +97,10 @@ const GameListScreen: React.FC<GameListScreenProps> = ({ navigation }) => {
 
     const filteredGames = showEndedGames ? games : games.filter(game => !isGameEnded(game));
 
-    const GameCard: React.FC<GameCardProps> = ({ gameStateAccount, onPress }) => {
+    const GameCard: React.FC<GameCardProps> = ({ gameStateAccount, onPress  }:{
+        gameStateAccount: GameStateAccount;
+        onPress: (gameId: anchor.BN) => void;
+      }) => {
 
         const [isGameEnded, setIsGameEnded] = useState<boolean>(false);
 
@@ -114,7 +118,12 @@ const GameListScreen: React.FC<GameListScreenProps> = ({ navigation }) => {
                 end={{ x: 1, y: 0 }}
                 style={styles.cardBorder}
             >
-                <TouchableOpacity style={styles.card} onPress={() => onPress(gameStateAccount.gameId)}>
+                <TouchableOpacity style={styles.card} onPress={() => {
+                    console.log("Game ID: ", gameStateAccount.gameId);
+
+                    
+                    onPress(gameStateAccount.gameId)
+                    }}>
 
                     <View style={styles.cardImageContainer}>
                         <Image
