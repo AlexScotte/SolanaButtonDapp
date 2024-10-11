@@ -1,19 +1,17 @@
 import * as anchor from "@coral-xyz/anchor";
-import { useConnection } from "../components/providers/ConnectionProvider";
-import { useMobileWallet } from "../hooks/useMobileWallet";
+import { ConnectionContextState, useConnection } from "../components/providers/ConnectionProvider";
+import { MobileWallet, useMobileWallet } from "../hooks/useMobileWallet";
 import { getSolanaButtonProgram, ProgramType } from "./program.idl";
 
-const { connection } = useConnection();
-const mobileWallet = useMobileWallet()!;
 
 interface AnchorConfig {
     program: anchor.Program<ProgramType>;
     provider: anchor.AnchorProvider;
 }
 
-export function getAnchorConfig(): AnchorConfig {
+export function getAnchorConfig(connection: anchor.web3.Connection, mobileWallet: MobileWallet): AnchorConfig {
 
-    const provider = new anchor.AnchorProvider(connection, mobileWallet as any, {
+    const provider = new anchor.AnchorProvider(connection, mobileWallet, {
         preflightCommitment: "finalized",
     });
     const program = getSolanaButtonProgram(provider);

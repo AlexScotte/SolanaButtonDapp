@@ -29,9 +29,9 @@ export default function GameScreen({ route }: { route: GameScreenRouteProp }) {
     const { gameId } = route.params;
 
     const solanaLogo = require('../assets/solanaLogoMark.png');
-    const { program } = getAnchorConfig();
     const connectionContext = useConnection();
     const mobileWallet = useMobileWallet()!;
+    const { program } = getAnchorConfig(connectionContext.connection, mobileWallet);
 
     const [appState, setAppState] = React.useState<AppStateStatus>(AppState.currentState);
     const [globalState, setGlobalState] = React.useState<GlobalStateAccount>();

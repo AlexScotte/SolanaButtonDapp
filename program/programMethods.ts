@@ -18,7 +18,7 @@ export async function verifyGameState(connection: anchor.web3.Connection, progra
         console.log("⌛ Trying to verify the game state");
 
         const globalStatePda: anchor.web3.PublicKey = await getGlobalStatePDA(program);
-        const globaleStateAccount: GlobalStateAccount = await fetchGlobalState(program, globalStatePda);
+        const globaleStateAccount: GlobalStateAccount = await fetchGlobalState(program);
 
         const gameStatePda: anchor.web3.PublicKey = await getGameStatePDA(program, globaleStateAccount.activeGameId);
 

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, SafeAreaView, Switch, ActivityIndicator, Image } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Header } from '../components/Header';
@@ -7,11 +7,12 @@ import { fetchAllGameState, fetchAllGameVaultState } from '../program/programAcc
 import { getAnchorConfig } from '../program/config';
 import { GameStateAccount, GameVaultStateAccount } from '../program/programTypes';
 import { toastError } from '../utils/toast/toastHelper';
-import { useMobileWallet } from '../hooks/useMobileWallet';
 import { calculateRemainingTime, getHourMinuteSecond, getShortAddress, lamportInSol } from '../utils/helper';
 import LinearGradient from 'react-native-linear-gradient';
 import * as anchor from "@coral-xyz/anchor";
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
+import { useMobileWallet } from '../hooks/useMobileWallet';
+import { useConnection } from '../components/providers/ConnectionProvider';
 
 type RootStackParamList = {
     GameList: undefined;
@@ -32,43 +33,28 @@ interface GameListScreenProps {
 
 const GameListScreen: React.FC<GameListScreenProps> = ({ navigation }) => {
 
-    const { program } = getAnchorConfig();
+    const connection = useConnection();
+    const mobileWallet = useMobileWallet()!;
+    const { program } = getAnchorConfig(connection.connection, mobileWallet);
     const [games, setGames] = useState<GameStateAccount[]>([]);
     const [vaults, setVaults] = useState<GameVaultStateAccount[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
+    const [loading, setLoading] = useState<Boolean>(false);
     const [showEndedGames, setShowEndedGames] = useState<boolean>(false);
-    const mobileWallet = useMobileWallet()!;
-
+    
     const fetchGameListData = useCallback(async () => {
-
-        const fetchGames = async () => {
-
-            try {
-                setLoading(true);
-                const allGameStateAccounts = await fetchAllGameState(program);
-                setGames(allGameStateAccounts);
-                setLoading(false);
-            } catch (error) {
-                console.error("Error fetching global state:", error);
-                setLoading(false);
-            }
-        };
-
-        const fetchVaults = async () => {
-
-            try {
-                setLoading(true);
-                const allGameVaultStateAccounts = await fetchAllGameVaultState(program);
-                setVaults(allGameVaultStateAccounts);
-                setLoading(false);
-            } catch (error) {
-                console.error("Error fetching global state:", error);
-                setLoading(false);
-            }
-        };
-
-        fetchGames();
-        fetchVaults();
+        setLoading(true);
+        try {
+            const [allGameStateAccounts, allGameVaultStateAccounts] = await Promise.all([
+                fetchAllGameState(program),
+                fetchAllGameVaultState(program)
+            ]);
+            setGames(allGameStateAccounts);
+            setVaults(allGameVaultStateAccounts);
+        } catch (error) {
+            console.log("Error fetching data:", error);
+        } finally {
+            setLoading(false);
+        }
     }, []);
 
     useEffect(() => {
