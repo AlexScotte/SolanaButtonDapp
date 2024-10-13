@@ -22,12 +22,14 @@ import { getAnchorConfig } from '../program/config';
 import { moderateScale } from 'react-native-size-matters';
 
 interface SolanaButtonProps {
+  program: anchor.Program<ProgramType>;
   gameId: anchor.BN;
   isGameEnded: boolean;
   isCurrentUserWinner: boolean;
+  isVaultClaimed: boolean;
 }
 
-export const SolanaButton: React.FC<SolanaButtonProps> = ({ gameId, isGameEnded, isCurrentUserWinner }) => {
+export const SolanaButton: React.FC<SolanaButtonProps> = ({program, gameId, isGameEnded, isCurrentUserWinner, isVaultClaimed }) => {
 
   const solanaLogo = require('../assets/solanaLogoMarkBlack.png');
   const mobileWallet = useMobileWallet()!;
@@ -36,7 +38,6 @@ export const SolanaButton: React.FC<SolanaButtonProps> = ({ gameId, isGameEnded,
   const animationRef = useRef<Animated.CompositeAnimation | null>(null);
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const opacityAnim = useRef(new Animated.Value(0.5)).current;
-  const { program, provider } = getAnchorConfig();
 
   const handlePress = async () => {
 
@@ -165,10 +166,10 @@ export const SolanaButton: React.FC<SolanaButtonProps> = ({ gameId, isGameEnded,
     //   start={{ x: 0, y: 1 }}
     //   end={{ x: 1, y: 0 }}
     // >
-    <TouchableOpacity onPress={handlePress} style={styles.buttonContainer} disabled={isGameEnded && !isCurrentUserWinner}>
+    <TouchableOpacity onPress={handlePress} style={styles.buttonContainer} disabled={isGameEnded && !isCurrentUserWinner && isVaultClaimed}>
       <Animated.View style={[styles.gradientWrapper, { transform: [{ scale: scaleAnim }] }]}>
         <LinearGradient
-          colors={isGameEnded ? isCurrentUserWinner ?  ['#FFD700', '#FFA500'] : ['#A9A9A9', '#D3D3D3'] : ['#9945FF', '#14F195']}
+          colors={isGameEnded ? isCurrentUserWinner ?  isVaultClaimed ? ['#FFD700', '#FFA500'] : ['#A9A9A9', '#D3D3D3'] : ['#A9A9A9', '#D3D3D3'] : ['#9945FF', '#14F195']}
           style={styles.gradient}
           start={{ x: 0, y: 1 }}
           end={{ x: 1, y: 0 }}

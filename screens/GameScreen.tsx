@@ -41,6 +41,7 @@ export default function GameScreen({ route }: { route: GameScreenRouteProp }) {
     const [isGameStarted, setIsGameStarted] = React.useState(false);
     const [isGameEnded, setIsGameEnded] = React.useState(false);
     const [isUserLeader, setIsUserLeader] = React.useState(false);
+    const [isVaultClaimed, setIsVaultClaimed] = React.useState(false);
     const { hours, minutes, seconds } = getHourMinuteSecond(remainingTime);
 
 
@@ -126,7 +127,7 @@ export default function GameScreen({ route }: { route: GameScreenRouteProp }) {
                     connectionContext.connection,
                     program,
                     gameId,
-                    (updatedAccount: GameVaultStateAccount) => setGameVaultState(updatedAccount)
+                    (updatedAccount: GameVaultStateAccount) => setVaultData(updatedAccount)
                 );
             } catch (error) {
                 console.error("Error fetching vault state:", error);
@@ -135,6 +136,12 @@ export default function GameScreen({ route }: { route: GameScreenRouteProp }) {
         fetchVaultData();
     }, []);
 
+    async function setVaultData(gvsa: GameVaultStateAccount) {
+        const isVaultClaimed = gvsa.balance === new anchor.BN(0);
+        setIsVaultClaimed(isVaultClaimed);
+
+        setGameVaultState(gvsa);
+    }
 
     /* Manage countdown */
     useEffect(() => {
@@ -205,8 +212,10 @@ export default function GameScreen({ route }: { route: GameScreenRouteProp }) {
                 {/* Solana Button */}
                 <View style={styles.buttonContainer}>
                     <SolanaButton
+                        program={program}
                         isGameEnded={isGameEnded}
                         isCurrentUserWinner={isUserLeader}
+                        isVaultClaimed={isVaultClaimed}
                         gameId={gameId}
                     />
                 </View>

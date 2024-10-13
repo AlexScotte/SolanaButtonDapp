@@ -112,7 +112,7 @@ export async function fetchGlobalState(program : anchor.Program<ProgramType>)
     if(!globalStatePda)
         throw new Error(ERROR_PDA);
     
-    try{
+      try{
         const globalStateAccount: GlobalStateAccount = await program.account.globalState.fetch(globalStatePda);
         console.log("📋 Global state account: ", globalStateAccount);
         return globalStateAccount;
@@ -135,6 +135,9 @@ export async function fetchAllGameState(program : anchor.Program<ProgramType>)
         throw new Error(ERROR_PROGRAM_ID)
 
     try {
+        console.log("games");
+        console.log(await program.account.gameState.all())
+        console.log("aaaa");
         const gameStateAccounts: GameStateAccount[] = 
             (await program.account.gameState.all())
                 .map(account => account.account as GameStateAccount);
@@ -188,6 +191,8 @@ export async function fetchAllGameVaultState(program : anchor.Program<ProgramTyp
         throw new Error(ERROR_PROGRAM_ID)
 
     try {
+        console.log("vault");
+        console.log(await program.account.vault.all());
         const gameVaultStateAccounts: GameVaultStateAccount[] = 
             (await program.account.vault.all())
                 .map(account => account.account as GameVaultStateAccount);
