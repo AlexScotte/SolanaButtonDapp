@@ -48,7 +48,9 @@ const GameListScreen: React.FC<GameListScreenProps> = ({ navigation }) => {
                 fetchAllGameState(program),
                 fetchAllGameVaultState(program)
             ]);
-            setGames(allGameStateAccounts);
+
+            const sortedGameStateAccounts = allGameStateAccounts.sort((a, b) => a.gameId.cmp(b.gameId));
+            setGames(sortedGameStateAccounts);
             setVaults(allGameVaultStateAccounts);
         } catch (error) {
             console.log("Error fetching data:", error);
