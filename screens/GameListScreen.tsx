@@ -92,17 +92,22 @@ const GameListScreen: React.FC<GameListScreenProps> = ({ navigation }) => {
       }) => {
 
         const [isGameEnded, setIsGameEnded] = useState<boolean>(false);
+        const [isUserWinner, setIsUserWinner] = React.useState(false);
 
         const remainingTime = calculateRemainingTime(gameStateAccount);
         const { hours, minutes, seconds } = getHourMinuteSecond(remainingTime);
 
         useEffect(() => {
-            setIsGameEnded(gameStateAccount.hasEnded || remainingTime <= 0);
-        }, [gameStateAccount.hasEnded, remainingTime]);
+            const isGameEnded = gameStateAccount.hasEnded || remainingTime <= 0;
+            setIsGameEnded(isGameEnded);
+            
+            const isUserWin = isGameEnded && gameStateAccount.lastClicker.toBase58() === mobileWallet?.publicKey?.toBase58();
+            setIsUserWinner(isUserWin);
+        }, [gameStateAccount.hasEnded, remainingTime, gameStateAccount.lastClicker]);
 
         return (
             <LinearGradient
-                colors={isGameEnded ? ['#7A7A7A', '#8A8A8A'] : ['#8A3EE6', '#12D485']}
+                colors={isGameEnded ? isUserWinner ? ['#FFD700', '#FFA500'] : ['#7A7A7A', '#8A8A8A'] : ['#8A3EE6', '#12D485']}
                 start={{ x: 0, y: 1 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.cardBorder}
