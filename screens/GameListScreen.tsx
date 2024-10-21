@@ -68,7 +68,8 @@ const GameListScreen: React.FC<GameListScreenProps> = ({ navigation }) => {
     }, []);
 
     const handleGamePress = useCallback((gameId: anchor.BN ) => {
-        navigation.navigate('Game', { gameId });
+        const strGameId = gameId.toString();
+        navigation.navigate('Game', { strGameId });
     }, [navigation]);
 
     const renderItem = ({ item }: { item: GameStateAccount }) => (
@@ -236,7 +237,11 @@ const styles = StyleSheet.create({
         fontFamily: 'neuropolitical',
     },
     refreshButton: {
-        padding: 8,
+        padding: 10,
+        backgroundColor: '#242424',
+        borderRadius: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     filterContainer: {
         flexDirection: 'row',

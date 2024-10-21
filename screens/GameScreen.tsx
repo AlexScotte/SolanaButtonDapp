@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
 import * as anchor from "@coral-xyz/anchor";
-import { AppState, View, StyleSheet, SafeAreaView, Text, Image, AppStateStatus } from 'react-native';
+import { AppState, View, StyleSheet, SafeAreaView, Text, Image, AppStateStatus, TouchableOpacity } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
 import { SolanaButton } from '../components/SolanaButton';
 import { fetchGlobalState, fetchGameState, fetchGameVaultState, subscribeGlobalState, subscribeGameState, subscribeGameVaultState } from '../program/programAccounts';
@@ -12,21 +12,30 @@ import { getAnchorConfig } from '../program/config';
 import { GameStateAccount, GameVaultStateAccount, GlobalStateAccount } from '../program/programTypes';
 import { calculateRemainingTime, getHourMinuteSecond, getShortAddress, lamportInSol } from '../utils/helper';
 import Countdown from '../components/Countdown';
-import { toastSuccess } from '../utils/toast/toastHelper';
+import { toastError, toastSuccess } from '../utils/toast/toastHelper';
 import { Header } from '../components/Header';
 import LinearGradient from 'react-native-linear-gradient';
 import { moderateScale } from 'react-native-size-matters';
-
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { verifyGameState } from '../program/programMethods';
 
 type RootStackParamList = {
-    Game: { gameId: anchor.BN };
+    Game: { strGameId: String };
 };
 
 type GameScreenRouteProp = RouteProp<RootStackParamList, 'Game'>;
+type GameScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Game'>;
 
-export default function GameScreen({ route }: { route: GameScreenRouteProp }) {
+interface GameScreenProps {
+    route: GameScreenRouteProp;
+    navigation: GameScreenNavigationProp;
+}
 
-    const { gameId } = route.params;
+export default function GameScreen({ route, navigation }: GameScreenProps) {
+
+    const { strGameId } = route.params;
+    const gameId = new anchor.BN(strGameId);
 
     const solanaLogo = require('../assets/solanaLogoMark.png');
     const connectionContext = useConnection();
@@ -179,12 +188,49 @@ export default function GameScreen({ route }: { route: GameScreenRouteProp }) {
         return () => clearInterval(interval);
     }, [gameState, isGameStarted, appState]);
 
+    const handleOnListPress = () => {
+        navigation.reset({
+            index: 0,
+            routes: [{ name: 'GameList' }],
+        });
+    }
+
+    const handleOnVerifyPress = async () => {
+        try {
+
+            if (!mobileWallet) {
+                toastError("Wallet not connected", "Please connect your wallet to continue");
+                return;
+              }
+
+            const tx = await verifyGameState(connectionContext.connection, mobileWallet, program, gameId);
+      
+            await fetchGameState(program, gameId);
+            await fetchGameVaultState(program, gameId);
+      
+            toastSuccess("Transaction success !", `Transaction signature: ${tx}`);
+          }
+          catch (err) {
+      
+            toastError("Transaction Error", `Error while verifying the game (${err})`);
+          }
+    }
+
     return (
         <SafeAreaView style={styles.safeAreaView}>
 
             <Header />
 
             <View style={styles.container}>
+
+                <View style={styles.buttonColumn}>
+                    <TouchableOpacity style={styles.roundButton} onPress={handleOnListPress}>
+                        <Ionicons name="list" size={moderateScale(20)} color="#FFFFFF" />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.roundButton} onPress={handleOnVerifyPress}>
+                        <Ionicons name="checkmark" size={moderateScale(20)} color="#FFFFFF" />
+                    </TouchableOpacity>
+                </View>
 
                 {/* "Click & Win" */}
                 <View style={styles.clickWinContainer}>
@@ -307,6 +353,21 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
 
+    buttonColumn: {
+        position: 'absolute',
+        top: moderateScale(10),
+        right: moderateScale(12),
+        justifyContent: 'flex-start',
+    },
+    roundButton: {
+        padding: 10,
+        backgroundColor: '#242424',
+        borderRadius: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: moderateScale(15),
+    },
+
     // Play & Win text styling
     clickWinContainer: {
         justifyContent: 'center',
@@ -332,7 +393,7 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 20,
         borderBottomRightRadius: 20,
         height: "100%",
-        
+
     },
     emoji: {
         fontSize: 50,
@@ -352,7 +413,7 @@ const styles = StyleSheet.create({
         width: moderateScale(20),
         height: moderateScale(20),
     },
-    countdownContainer:{
+    countdownContainer: {
 
         flex: .5,
         width: '100%',
