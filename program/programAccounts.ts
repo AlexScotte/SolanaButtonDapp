@@ -135,9 +135,6 @@ export async function fetchAllGameState(program : anchor.Program<ProgramType>)
         throw new Error(ERROR_PROGRAM_ID)
 
     try {
-        console.log("games");
-        console.log(await program.account.gameState.all())
-        console.log("aaaa");
         const gameStateAccounts: GameStateAccount[] = 
             (await program.account.gameState.all())
                 .map(account => account.account as GameStateAccount);
